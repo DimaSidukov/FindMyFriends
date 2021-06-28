@@ -1,14 +1,16 @@
 package android.example.findmyfriends
 
+import android.content.Intent
+import android.example.findmyfriends.geoservice.GetCoordinatesByLocation
 import android.example.findmyfriends.mutabledata.*
 import android.example.findmyfriends.retrofitservice.VkFriendsService
 import android.example.findmyfriends.vkdata.friendsinfo.GetVkFriendsData
 import android.example.findmyfriends.vkdata.friendsinfo.Item
 import android.os.Bundle
-import android.util.Log
-import android.util.SparseArray
-import android.view.View
+import android.text.Editable
+import android.text.TextWatcher
 import android.widget.Button
+import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -20,14 +22,9 @@ import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import java.lang.Exception
 import java.util.*
 
-
-//при поиске в эдитвью онлайн обновление списка
-//появление кнопки, если хоть один флажок checked - не сделано пока
-//если выбрать всё, а затем отщёлкивать, то элементы вне экрана выбираются заново
-
+//если стереть текст из эдитвью чекбокс сохраняется относительно позиции, а не пользователя
 
 class FriendListActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,6 +42,7 @@ class FriendListActivity : AppCompatActivity() {
         val request = requestFriendsVK + intentToken + miscURL
         val usersWithCity : MutableList<Item> = mutableListOf()
 
+        val editText = findViewById<EditText>(R.id.enter_user)
         val selectAllButton = findViewById<Button>(R.id.pick_all)
         val openMapButton = findViewById<FloatingActionButton>(R.id.open_map_button)
 
@@ -60,14 +58,34 @@ class FriendListActivity : AppCompatActivity() {
                     }
                 }
 
-                val recyclerView: RecyclerView = findViewById(R.id.recycler_view_list)
-                recyclerView.layoutManager = LinearLayoutManager(this@FriendListActivity)
+                val recyclerView : RecyclerView = findViewById(R.id.list_view)
                 val vkAdapter = VkFriendListAdapter(usersWithCity)
+                recyclerView.layoutManager = LinearLayoutManager(this@FriendListActivity)
                 recyclerView.adapter = vkAdapter
 
                 selectAllButton.setOnClickListener {
                     vkAdapter.selectAll()
                 }
+
+                editText.addTextChangedListener(object : TextWatcher {
+                    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                    }
+
+                    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                    }
+
+                    override fun afterTextChanged(s: Editable?) {
+                        val updated : MutableList<Item> = mutableListOf()
+                        for(item in usersWithCity) {
+                            if(item.nameOfUser.lowercase(Locale.getDefault()).contains(s.toString()
+                                    .lowercase(Locale.getDefault()))) {
+                                updated.add(item)
+                            }
+
+                        }
+                        vkAdapter.filterList(updated)
+                    }
+                })
 
                 openMapButton.setOnClickListener{
                     val list = vkAdapter.getChecked()
@@ -79,13 +97,22 @@ class FriendListActivity : AppCompatActivity() {
                     }
 
                     if(listOfChecked.isEmpty())
-                        Toast.makeText(this@FriendListActivity, "Вы ничего не выбрали!", Toast.LENGTH_SHORT).show()
-                    else Log.d("LIST OF", listOfChecked.toString())
+                        makeToast(this@FriendListActivity, "Вы ничего не выбрали!")
+                    else {
+                        val checkedUsers = mutableListOf<Item>()
+                        for(i in 0 until listOfChecked.size) checkedUsers.add(usersWithCity[listOfChecked[i]])
+
+                        val geocoder = GetCoordinatesByLocation(this@FriendListActivity, checkedUsers)
+                        locData = geocoder.execute()
+
+                        val mapIntent = Intent(this@FriendListActivity, MapsActivity::class.java)
+                        startActivity(mapIntent)
+                    }
                 }
             }
 
             override fun onFailure(call: Call<GetVkFriendsData>, t: Throwable) {
-                Toast.makeText(this@FriendListActivity, "Не удалось загрузить данные.", Toast.LENGTH_SHORT).show()
+                makeToast(this@FriendListActivity, "Не удалось загрузить данные.")
             }
         }
         )

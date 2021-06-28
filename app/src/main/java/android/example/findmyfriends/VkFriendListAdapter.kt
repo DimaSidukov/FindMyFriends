@@ -1,16 +1,17 @@
 package android.example.findmyfriends
 
 import android.example.findmyfriends.vkdata.friendsinfo.Item
-import android.util.Log
 import android.util.SparseBooleanArray
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
+import android.widget.CheckBox
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.squareup.picasso.Picasso
 
-class VkFriendListAdapter(private val userData: List<Item>) :
+class VkFriendListAdapter(private var userData: List<Item>) :
     RecyclerView.Adapter<VkFriendListAdapter.MyViewHolder>() {
 
     private var checkBoxStateArray = SparseBooleanArray()
@@ -28,6 +29,7 @@ class VkFriendListAdapter(private val userData: List<Item>) :
                     if (checkBoxStateArray.get(adapterPosition, false)) {
                         checkBox.isChecked = false
                         checkBoxStateArray.put(adapterPosition, false)
+
                     } else {
                         checkBox.isChecked = true
                         checkBoxStateArray.put(adapterPosition, true)
@@ -43,12 +45,16 @@ class VkFriendListAdapter(private val userData: List<Item>) :
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
 
-        holder.checkBox.isChecked = checkBoxStateArray.get(position, false)
-
         if(pickAllFlag) {
             holder.checkBox.isChecked = pickAllFlag
-            checkBoxStateArray.put(position, pickAllFlag)
+            for(i in userData.indices) {
+                checkBoxStateArray.put(i, pickAllFlag)
+                if(i == userData.indices.last)
+                    pickAllFlag = false
+            }
         }
+
+        holder.checkBox.isChecked = checkBoxStateArray.get(position, false)
 
         val name = userData[position].first_name + " " + userData[position].last_name
         holder.nameSurname.text = name
@@ -58,11 +64,15 @@ class VkFriendListAdapter(private val userData: List<Item>) :
 
     override fun getItemCount() = userData.size
 
-    fun selectAll() {
-        pickAllFlag = true
+    fun filterList(updatedList: List<Item>) {
+        userData = updatedList
         notifyDataSetChanged()
     }
 
+    fun selectAll() {
+        pickAllFlag = !pickAllFlag
+        notifyDataSetChanged()
+    }
 
     fun getChecked() = checkBoxStateArray
 }
