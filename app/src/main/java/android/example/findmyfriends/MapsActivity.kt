@@ -1,19 +1,33 @@
 package android.example.findmyfriends
 
 import android.example.findmyfriends.databinding.ActivityMapsBinding
+<<<<<<< HEAD
 import android.example.findmyfriends.presenters.PresenterMap
+=======
+import android.example.findmyfriends.mutabledata.locData
+>>>>>>> dcff0ea775896c1f3bb9ca03daa144c61f2c302a
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+<<<<<<< HEAD
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var map: GoogleMap
     private lateinit var binding: ActivityMapsBinding
     private val presenter = PresenterMap(this)
+=======
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
+
+class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
+
+    private lateinit var mMap: GoogleMap
+    private lateinit var binding: ActivityMapsBinding
+>>>>>>> dcff0ea775896c1f3bb9ca03daa144c61f2c302a
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,12 +53,28 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
      * installed Google Play services and returned to the app.
      */
     override fun onMapReady(googleMap: GoogleMap) {
+<<<<<<< HEAD
         map = googleMap
 
         map.setOnMapLoadedCallback {
             presenter.showOneTheMap(map)
         }
         map.animateCamera(CameraUpdateFactory.zoomTo(5.0f))
+=======
+        mMap = googleMap
+
+        mMap.setOnMapLoadedCallback {
+            lateinit var marker: LatLng
+
+            for(location in locData) {
+                marker = LatLng(location.latitude, location.longitude)
+                mMap.addMarker(MarkerOptions().position(marker).title(location.city))
+            }
+
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(marker))
+        }
+        mMap.animateCamera( CameraUpdateFactory.zoomTo( 5.0f ) );
+>>>>>>> dcff0ea775896c1f3bb9ca03daa144c61f2c302a
     }
 
     override fun onSupportNavigateUp(): Boolean {
