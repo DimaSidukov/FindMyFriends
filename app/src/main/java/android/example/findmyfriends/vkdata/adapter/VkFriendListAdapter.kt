@@ -1,5 +1,6 @@
-package android.example.findmyfriends
+package android.example.findmyfriends.vkdata.adapter
 
+import android.example.findmyfriends.R
 import android.example.findmyfriends.vkdata.friendsinfo.Item
 import android.util.SparseBooleanArray
 import android.view.LayoutInflater

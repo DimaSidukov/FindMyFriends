@@ -1,20 +1,19 @@
 package android.example.findmyfriends
 
 import android.example.findmyfriends.databinding.ActivityMapsBinding
-import android.example.findmyfriends.mutabledata.locData
+import android.example.findmyfriends.presenters.PresenterMap
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
-    private lateinit var mMap: GoogleMap
+    private lateinit var map: GoogleMap
     private lateinit var binding: ActivityMapsBinding
+    private val presenter = PresenterMap(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,19 +39,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
      * installed Google Play services and returned to the app.
      */
     override fun onMapReady(googleMap: GoogleMap) {
-        mMap = googleMap
+        map = googleMap
 
-        mMap.setOnMapLoadedCallback {
-            lateinit var marker: LatLng
-
-            for(location in locData) {
-                marker = LatLng(location.latitude, location.longitude)
-                mMap.addMarker(MarkerOptions().position(marker).title(location.city))
-            }
-
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(marker))
+        map.setOnMapLoadedCallback {
+            presenter.showOneTheMap(map)
         }
-        mMap.animateCamera( CameraUpdateFactory.zoomTo( 5.0f ) );
+        map.animateCamera(CameraUpdateFactory.zoomTo(5.0f))
     }
 
     override fun onSupportNavigateUp(): Boolean {
