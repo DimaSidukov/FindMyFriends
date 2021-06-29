@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">FindMyFriends</string>
+    <string name="login_via_vk">Войти через ВКонтакте</string>
+    <string name="enter_user_name">Введите имя пользователя</string>
+    <string name="select_all">Выбрать всех</string>
+    <string name="see_on_map">See on map</string>
+    <integer name="com_vk_sdk_AppId">7887388</integer>
+    <string name="title_activity_maps">Map</string>
+</resources>

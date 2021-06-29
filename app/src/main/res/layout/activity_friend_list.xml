@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#ECEFF1"
+    tools:context=".FriendListActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:id="@+id/text_and_button">
+
+        <EditText
+            android:id="@+id/enter_user"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_weight="8"
+            android:textSize="17sp"
+            android:hint="@string/enter_user_name"
+            android:autofillHints="@string/enter_user_name" />
+
+        <Button
+            android:id="@+id/pick_all"
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_marginTop="7dp"
+            android:layout_marginEnd="10dp"
+            android:layout_weight="3.8"
+            android:text="@string/select_all" />
+
+    </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/list_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:layout_below="@id/text_and_button"
+        android:background="#ECEFF1"
+        android:scrollbars="vertical"/>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_margin="30dp"
+        android:src="@drawable/ic_launcher_next_foreground"
+        android:contentDescription="@string/see_on_map"
+        app:maxImageSize="36dp"
+        app:tint="@color/white"
+        android:id="@+id/open_map_button"/>
+</RelativeLayout>
