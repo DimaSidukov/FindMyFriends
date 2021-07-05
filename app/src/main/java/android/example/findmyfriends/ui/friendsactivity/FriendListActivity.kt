@@ -1,7 +1,6 @@
 package android.example.findmyfriends.ui.friendsactivity
 
 import android.example.findmyfriends.R
-import android.example.findmyfriends.model.local.array
 import android.example.findmyfriends.model.remote.database.dao.UserInfoDao
 import android.example.findmyfriends.model.remote.database.database.AppDatabase
 import android.example.findmyfriends.model.remote.vk.retrofitservice.VkFriendsService
@@ -9,7 +8,6 @@ import android.example.findmyfriends.viewmodel.friendspresenter.FriendsPresenter
 import android.example.findmyfriends.viewmodel.friendspresenter.friendsadapter.VkFriendListAdapter
 import android.example.findmyfriends.viewmodel.friendspresenter.moxyinterfaces.FriendsActivityView
 import android.os.Bundle
-import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import androidx.core.widget.doAfterTextChanged
@@ -32,7 +30,6 @@ class FriendListActivity : MvpAppCompatActivity(R.layout.activity_friend_list), 
     private lateinit var editText : EditText
     private lateinit var selectAllButton : Button
     private lateinit var openMapButton : FloatingActionButton
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -94,17 +91,11 @@ class FriendListActivity : MvpAppCompatActivity(R.layout.activity_friend_list), 
 
     override fun onDestroy() {
         super.onDestroy()
-        array = vkAdapter.getChecked()
+        presenter.setArrayOfChecked(vkAdapter)
     }
 
     override fun setButtonState() {
-        try {
-            vkAdapter.setChecked(array)
-            val (first, _) = presenter.getExclusiveIndices(vkAdapter)
-            Log.d("USERS PICKED", first.toString())
-            Log.d("USERS PICKED LENGTH", first.size.toString())
-            vkAdapter.notifyDataSetChanged()
-        } catch (e: Exception) { }
+        presenter.setChecksBeforeDestruction(vkAdapter)
     }
 }
 

@@ -3,6 +3,7 @@ package android.example.findmyfriends.viewmodel.friendspresenter
 import android.R
 import android.content.Context
 import android.content.Intent
+import android.example.findmyfriends.model.local.array
 import android.example.findmyfriends.model.local.isDbCreated
 import android.example.findmyfriends.model.local.locData
 import android.example.findmyfriends.model.local.textViewText
@@ -91,6 +92,20 @@ class FriendsPresenter(context: Context) : MvpPresenter<FriendsActivityView>() {
         } else {
             getOfflineFromDB(adapter)
         }
+    }
+
+    fun setArrayOfChecked(vkAdapter: VkFriendListAdapter) {
+        array = vkAdapter.getChecked()
+    }
+
+    fun setChecksBeforeDestruction(vkAdapter: VkFriendListAdapter) {
+        try {
+            vkAdapter.setChecked(array)
+            val (first, _) = getExclusiveIndices(vkAdapter)
+            Log.d("USERS PICKED", first.toString())
+            Log.d("USERS PICKED LENGTH", first.size.toString())
+            vkAdapter.notifyDataSetChanged()
+        } catch (e: Exception) { }
     }
 
     fun getUsers(users: UserInfoDao?) : List<UserInfo> {

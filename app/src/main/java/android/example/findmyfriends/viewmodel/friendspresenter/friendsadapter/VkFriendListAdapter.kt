@@ -89,6 +89,6 @@ class VkFriendListAdapter(private var userData: List<UserInfo>, private var forU
         forUpdate = list
         notifyDataSetChanged()
     }
+
     fun getList() = userData
-    fun getUpdatedList() = forUpdate
 }
