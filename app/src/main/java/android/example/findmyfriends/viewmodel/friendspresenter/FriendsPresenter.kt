@@ -1,5 +1,6 @@
 package android.example.findmyfriends.viewmodel.friendspresenter
 
+import android.R
 import android.content.Context
 import android.content.Intent
 import android.example.findmyfriends.model.local.isDbCreated
@@ -16,11 +17,12 @@ import android.example.findmyfriends.viewmodel.common.BasePresenter
 import android.example.findmyfriends.viewmodel.friendspresenter.friendsadapter.VkFriendListAdapter
 import android.example.findmyfriends.viewmodel.friendspresenter.moxyinterfaces.FriendsActivityView
 import android.location.Geocoder
+import android.os.AsyncTask
 import android.text.Editable
-import com.arellomobile.mvp.InjectViewState
-import com.arellomobile.mvp.MvpPresenter
+import android.util.Log
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import moxy.MvpPresenter
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -32,12 +34,14 @@ import java.util.*
 //использовать onFirstViewAttach() для загрузки списка друзей при певом запуске экрана
 //использовать moxy для кнопки в Main Activity и TextView и мб кнопки в FriendsListActivity
 
+class FriendsPresenter(context: Context) : MvpPresenter<FriendsActivityView>() {
 
-@InjectViewState
-class FriendsPresenter(context: Context) : MvpPresenter<FriendsActivityView>()  {
 
-    init {
+    fun onViewAttach() {
+        super.onFirstViewAttach()
+
         viewState.showText(textViewText)
+        viewState.setButtonState()
     }
 
     val basePresenter = BasePresenter(context)
@@ -103,12 +107,16 @@ class FriendsPresenter(context: Context) : MvpPresenter<FriendsActivityView>()  
 
     fun getText() = textViewText
 
+    fun selectAll(vkAdapter: VkFriendListAdapter) = vkAdapter.selectAll()
+
     fun controlTextFlow(s: Editable?, adapter: VkFriendListAdapter) {
         val initialList = adapter.getList()
         val updated : MutableList<UserInfo> = mutableListOf()
         for(item in initialList) {
-            if(item.name.lowercase(Locale.getDefault()).contains(s.toString().lowercase(Locale.getDefault())))
+            if(item.name.lowercase().contains(s.toString().lowercase())) {
+                Log.d("WHILE ${s.toString()}", item.name)
                 updated.add(item)
+            }
         }
         adapter.filterList(updated)
     }
@@ -118,15 +126,7 @@ class FriendsPresenter(context: Context) : MvpPresenter<FriendsActivityView>()  
         if(!basePresenter.isNetworkAvailable()) {
             basePresenter.makeToast("Проверьте подключение к интернету!")
         } else {
-            val list = adapter.getChecked()
-            val initialList: List<UserInfo> = adapter.getList()
-            val listOfChecked = mutableListOf<Int>()
-
-            for(i in initialList.indices) {
-                try {
-                    if(list.valueAt(i)) listOfChecked.add(list.keyAt(i))
-                } catch (e: ArrayIndexOutOfBoundsException) { }
-            }
+            val (listOfChecked, initialList) = getExclusiveIndices(adapter)
 
             if(listOfChecked.isEmpty())
                 basePresenter.makeToast("Вы ничего не выбрали!")
@@ -140,6 +140,20 @@ class FriendsPresenter(context: Context) : MvpPresenter<FriendsActivityView>()  
                 viewActivity.startActivity(mapIntent)
             }
         }
+    }
+
+    fun getExclusiveIndices(adapter: VkFriendListAdapter): Pair<MutableList<Int>, List<UserInfo>> {
+        val list = adapter.getChecked()
+        val initialList: List<UserInfo> = adapter.getList()
+        val listOfChecked = mutableListOf<Int>()
+
+        for(i in initialList.indices) {
+            try {
+                if(list.valueAt(i)) listOfChecked.add(list.keyAt(i))
+            } catch (e: ArrayIndexOutOfBoundsException) { }
+        }
+
+        return Pair(listOfChecked, initialList)
     }
 
     private fun getCoordinatesByLocation(context: Context, users: List<UserInfo>): MutableList<UserLocationData> {

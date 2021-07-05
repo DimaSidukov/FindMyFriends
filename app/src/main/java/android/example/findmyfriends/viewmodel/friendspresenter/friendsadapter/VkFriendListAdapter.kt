@@ -2,6 +2,7 @@ package android.example.findmyfriends.viewmodel.friendspresenter.friendsadapter
 
 import android.example.findmyfriends.R
 import android.example.findmyfriends.model.remote.database.entity.UserInfo
+import android.util.Log
 import android.util.SparseBooleanArray
 import android.view.LayoutInflater
 import android.view.View
@@ -12,7 +13,8 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.squareup.picasso.Picasso
 
-class VkFriendListAdapter(private var userData: List<UserInfo>) : RecyclerView.Adapter<VkFriendListAdapter.MyViewHolder>() {
+class VkFriendListAdapter(private var userData: List<UserInfo>, private var forUpdate: List<UserInfo>) :
+    RecyclerView.Adapter<VkFriendListAdapter.MyViewHolder>() {
 
     private var checkBoxStateArray = SparseBooleanArray()
     private var pickAllFlag = false
@@ -54,6 +56,15 @@ class VkFriendListAdapter(private var userData: List<UserInfo>) : RecyclerView.A
             }
         }
 
+        for(initItem in userData) {
+            if(!forUpdate.contains(initItem)) {
+                if(holder.nameSurname.text == initItem.name) {
+                    holder.itemView.layoutParams = RecyclerView.LayoutParams(0, 0)
+                    holder.itemView.visibility = View.GONE
+                }
+            }
+        }
+
         holder.checkBox.isChecked = checkBoxStateArray.get(position, false)
 
         holder.nameSurname.text = userData[position].name
@@ -61,12 +72,7 @@ class VkFriendListAdapter(private var userData: List<UserInfo>) : RecyclerView.A
         Picasso.get().load(userData[position].photo_100).into(holder.image)
     }
 
-    override fun getItemCount() = userData.size
-
-    fun filterList(updatedList: List<UserInfo>) {
-        userData = updatedList
-        notifyDataSetChanged()
-    }
+    override fun getItemCount() = forUpdate.size
 
     fun selectAll() {
         pickAllFlag = !pickAllFlag
@@ -74,6 +80,15 @@ class VkFriendListAdapter(private var userData: List<UserInfo>) : RecyclerView.A
     }
 
     fun getChecked() = checkBoxStateArray
+    fun setChecked(array: SparseBooleanArray) {
+        checkBoxStateArray = array
+        notifyDataSetChanged()
+    }
 
+    fun filterList(list: List<UserInfo>) {
+        forUpdate = list
+        notifyDataSetChanged()
+    }
     fun getList() = userData
+    fun getUpdatedList() = forUpdate
 }
