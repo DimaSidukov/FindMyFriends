@@ -11,7 +11,6 @@ open class BasePresenter(private val context: Context) {
 
     fun accessVKToken() = vkAccessToken
     fun accessCurrentToken() = vkAccessToken
-    fun accessBaseUrl() = VK_FRIENDS_URL
     fun accessRequestVK() = requestFriendsVK
     fun accessMiscURL() = miscURL
     fun accessLocationData() = locData

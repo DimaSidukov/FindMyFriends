@@ -1,8 +1,8 @@
 package android.example.findmyfriends.ui.friendsactivity
 
 import android.example.findmyfriends.R
+import android.example.findmyfriends.application.FindMyFriendsApplication
 import android.example.findmyfriends.model.remote.database.dao.UserInfoDao
-import android.example.findmyfriends.model.remote.database.database.AppDatabase
 import android.example.findmyfriends.model.remote.vk.retrofitservice.VkFriendsService
 import android.example.findmyfriends.viewmodel.friendspresenter.FriendsPresenter
 import android.example.findmyfriends.viewmodel.friendspresenter.friendsadapter.VkFriendListAdapter
@@ -17,13 +17,18 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import moxy.MvpAppCompatActivity
 import moxy.ktx.moxyPresenter
 import retrofit2.Retrofit
+import javax.inject.Inject
 
-class FriendListActivity : MvpAppCompatActivity(R.layout.activity_friend_list), FriendsActivityView {
+class FriendListActivity @Inject constructor() : MvpAppCompatActivity(R.layout.activity_friend_list), FriendsActivityView {
 
     private val presenter by moxyPresenter { FriendsPresenter(applicationContext) }
 
-    private var db : AppDatabase? = null
-    private var usersDao: UserInfoDao? = null
+    @Inject
+    lateinit var retrofit: Retrofit
+
+    @Inject
+    lateinit var usersDao: UserInfoDao
+
     private lateinit var vkAdapter: VkFriendListAdapter
     private lateinit var recyclerView: RecyclerView
 
@@ -31,24 +36,21 @@ class FriendListActivity : MvpAppCompatActivity(R.layout.activity_friend_list), 
     private lateinit var selectAllButton : Button
     private lateinit var openMapButton : FloatingActionButton
 
+    private lateinit var request: String
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_friend_list)
 
+        (application as FindMyFriendsApplication).findMyFriendsComponent.inject(this)
+
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         presenter.onViewAttach()
 
-        declareElements()
-
-        val intentToken: String = intent.getStringExtra(presenter.accessCurrentToken()).toString()
-        val request = presenter.accessRequestVK() + intentToken + presenter.accessMiscURL()
-
-        db = AppDatabase.getAppDataBase(this)
-        usersDao = db?.userInfoDao()
-
+        initializeElements()
+        setRequest()
         buildRecyclerView()
 
-        val retrofit: Retrofit = presenter.buildRetrofit()
         val vkFriendsService: VkFriendsService = retrofit.create(VkFriendsService::class.java)
 
         presenter.setOnlineOrOffline(usersDao, vkFriendsService, request, vkAdapter)
@@ -67,10 +69,16 @@ class FriendListActivity : MvpAppCompatActivity(R.layout.activity_friend_list), 
         }
     }
 
-    private fun declareElements() {
+    private fun initializeElements() {
         editText = findViewById(R.id.enter_user)
         selectAllButton = findViewById(R.id.pick_all)
         openMapButton = findViewById(R.id.open_map_button)
+    }
+
+    private fun setRequest() {
+        request =
+            presenter.accessRequestVK() + intent.getStringExtra(presenter.accessCurrentToken())
+                .toString() + presenter.accessMiscURL()
     }
 
     private fun buildRecyclerView() {

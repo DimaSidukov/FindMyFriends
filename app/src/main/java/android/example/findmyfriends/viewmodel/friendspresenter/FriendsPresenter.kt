@@ -1,6 +1,5 @@
 package android.example.findmyfriends.viewmodel.friendspresenter
 
-import android.R
 import android.content.Context
 import android.content.Intent
 import android.example.findmyfriends.model.local.array
@@ -18,7 +17,6 @@ import android.example.findmyfriends.viewmodel.common.BasePresenter
 import android.example.findmyfriends.viewmodel.friendspresenter.friendsadapter.VkFriendListAdapter
 import android.example.findmyfriends.viewmodel.friendspresenter.moxyinterfaces.FriendsActivityView
 import android.location.Geocoder
-import android.os.AsyncTask
 import android.text.Editable
 import android.util.Log
 import kotlinx.coroutines.GlobalScope
@@ -27,16 +25,9 @@ import moxy.MvpPresenter
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.moshi.MoshiConverterFactory
 import java.util.*
 
-
-//использовать onFirstViewAttach() для загрузки списка друзей при певом запуске экрана
-//использовать moxy для кнопки в Main Activity и TextView и мб кнопки в FriendsListActivity
-
 class FriendsPresenter(context: Context) : MvpPresenter<FriendsActivityView>() {
-
 
     fun onViewAttach() {
         super.onFirstViewAttach()
@@ -46,13 +37,6 @@ class FriendsPresenter(context: Context) : MvpPresenter<FriendsActivityView>() {
     }
 
     val basePresenter = BasePresenter(context)
-
-    fun buildRetrofit() : Retrofit {
-        return Retrofit.Builder()
-            .baseUrl(basePresenter.accessBaseUrl())
-            .addConverterFactory(MoshiConverterFactory.create())
-            .build()
-    }
 
     private fun getResponse(vkFriendsService: VkFriendsService,
                             request: String, adapter: VkFriendListAdapter, db: UserInfoDao?) {
@@ -87,7 +71,7 @@ class FriendsPresenter(context: Context) : MvpPresenter<FriendsActivityView>() {
     }
 
     fun setOnlineOrOffline(db: UserInfoDao?, vkFriendsService: VkFriendsService, request: String, adapter: VkFriendListAdapter) {
-        if(basePresenter.isNetworkAvailable() && !isDbCreated){
+        if(basePresenter.isNetworkAvailable() && !isDbCreated) {
             getResponse(vkFriendsService, request, adapter, db)
         } else {
             getOfflineFromDB(adapter)

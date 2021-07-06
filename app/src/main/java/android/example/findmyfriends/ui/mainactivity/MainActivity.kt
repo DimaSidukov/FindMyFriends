@@ -8,7 +8,6 @@ import android.os.Bundle
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import com.vk.api.sdk.VK
-import dagger.android.support.DaggerAppCompatActivity
 import javax.inject.Inject
 
 
