@@ -10,8 +10,9 @@ import com.vk.api.sdk.VK
 import com.vk.api.sdk.auth.VKAccessToken
 import com.vk.api.sdk.auth.VKAuthCallback
 import com.vk.api.sdk.auth.VKScope
+import javax.inject.Inject
 
-class MainPresenter(context: Context) : BasePresenter(context) {
+class MainPresenter(context: Context) : BasePresenter(context){
 
     fun startNewActivityFromMain(viewActivity: MainActivity, token : String) {
         if(isNetworkAvailable()) {

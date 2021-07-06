@@ -19,6 +19,10 @@ import android.example.findmyfriends.viewmodel.friendspresenter.moxyinterfaces.F
 import android.location.Geocoder
 import android.text.Editable
 import android.util.Log
+import android.view.View
+import android.view.Window
+import android.view.WindowManager
+import android.widget.ProgressBar
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import moxy.MvpPresenter
@@ -26,6 +30,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.util.*
+
 
 class FriendsPresenter(context: Context) : MvpPresenter<FriendsActivityView>() {
 
@@ -122,21 +127,23 @@ class FriendsPresenter(context: Context) : MvpPresenter<FriendsActivityView>() {
 
     fun openMapHandler(viewActivity: FriendListActivity, adapter: VkFriendListAdapter) {
 
-        if(!basePresenter.isNetworkAvailable()) {
+        if (!basePresenter.isNetworkAvailable()) {
             basePresenter.makeToast("Проверьте подключение к интернету!")
         } else {
             val (listOfChecked, initialList) = getExclusiveIndices(adapter)
 
-            if(listOfChecked.isEmpty())
+            if (listOfChecked.isEmpty())
                 basePresenter.makeToast("Вы ничего не выбрали!")
             else {
-                val checkedUsers = mutableListOf<UserInfo>()
-                for(i in 0 until listOfChecked.size) checkedUsers.add(initialList[listOfChecked[i]])
+                GlobalScope.launch {
+                    val checkedUsers = mutableListOf<UserInfo>()
+                    for (i in 0 until listOfChecked.size) checkedUsers.add(initialList[listOfChecked[i]])
 
-                locData = getCoordinatesByLocation(viewActivity, checkedUsers)
+                    locData = getCoordinatesByLocation(viewActivity, checkedUsers)
 
-                val mapIntent = Intent(viewActivity, MapsActivity::class.java)
-                viewActivity.startActivity(mapIntent)
+                    val mapIntent = Intent(viewActivity, MapsActivity::class.java)
+                    viewActivity.startActivity(mapIntent)
+                }
             }
         }
     }
@@ -165,14 +172,16 @@ class FriendsPresenter(context: Context) : MvpPresenter<FriendsActivityView>() {
         for (user in users) {
             if (!repetitiveCities.contains(user.city)) {
                 val result = geocoder.getFromLocationName(user.city, 1)
-                listOfLocations.add(
-                    UserLocationData(
-                        result[0].latitude,
-                        result[0].longitude,
-                        user.name,
-                        user.city
+                try {
+                    listOfLocations.add(
+                        UserLocationData(
+                            result[0].latitude,
+                            result[0].longitude,
+                            user.name,
+                            user.city
+                        )
                     )
-                )
+                } catch (e: Exception) { }
                 repetitiveCities.add(user.city)
             }
         }

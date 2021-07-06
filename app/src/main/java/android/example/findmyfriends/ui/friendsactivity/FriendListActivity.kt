@@ -8,8 +8,12 @@ import android.example.findmyfriends.viewmodel.friendspresenter.FriendsPresenter
 import android.example.findmyfriends.viewmodel.friendspresenter.friendsadapter.VkFriendListAdapter
 import android.example.findmyfriends.viewmodel.friendspresenter.moxyinterfaces.FriendsActivityView
 import android.os.Bundle
+import android.util.Log
+import android.view.View
+import android.view.WindowManager
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ProgressBar
 import androidx.core.widget.doAfterTextChanged
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -35,6 +39,7 @@ class FriendListActivity @Inject constructor() : MvpAppCompatActivity(R.layout.a
     private lateinit var editText : EditText
     private lateinit var selectAllButton : Button
     private lateinit var openMapButton : FloatingActionButton
+    private lateinit var progressBar: ProgressBar
 
     private lateinit var request: String
 
@@ -65,7 +70,18 @@ class FriendListActivity @Inject constructor() : MvpAppCompatActivity(R.layout.a
         }
 
         openMapButton.setOnClickListener {
+            progressBar.visibility = View.VISIBLE
+            window.setFlags(
+                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+            )
+
             presenter.openMapHandler(this, vkAdapter)
+
+            Log.d("I HAVE", "REACHED")
+
+            progressBar.visibility = View.GONE
+            window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
         }
     }
 
@@ -73,6 +89,7 @@ class FriendListActivity @Inject constructor() : MvpAppCompatActivity(R.layout.a
         editText = findViewById(R.id.enter_user)
         selectAllButton = findViewById(R.id.pick_all)
         openMapButton = findViewById(R.id.open_map_button)
+        progressBar = findViewById(R.id.progress_bar)
     }
 
     private fun setRequest() {
@@ -83,7 +100,7 @@ class FriendListActivity @Inject constructor() : MvpAppCompatActivity(R.layout.a
 
     private fun buildRecyclerView() {
         recyclerView = findViewById(R.id.list_view)
-        vkAdapter = VkFriendListAdapter(presenter.getUsers(usersDao), presenter.getUsers(usersDao))
+        vkAdapter = VkFriendListAdapter(presenter.getUsers(usersDao), presenter.getUsers(usersDao), openMapButton)
         recyclerView.layoutManager = LinearLayoutManager(this@FriendListActivity)
         recyclerView.adapter = vkAdapter
     }

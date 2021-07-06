@@ -1,17 +1,19 @@
 package android.example.findmyfriends.di
 
 import android.content.Context
-import android.example.findmyfriends.ui.friendsactivity.FriendListActivity
-import android.example.findmyfriends.viewmodel.friendspresenter.FriendsPresenter
+import android.example.findmyfriends.viewmodel.common.BasePresenter
 import android.example.findmyfriends.viewmodel.mainpresenter.MainPresenter
 import android.example.findmyfriends.viewmodel.mappresenter.MapPresenter
 import dagger.Module
 import dagger.Provides
-import retrofit2.Retrofit
 import javax.inject.Singleton
 
 @Module
 class PresenterModule() {
+
+    @Provides
+    @Singleton
+    fun provideBasePresenter(context: Context) : BasePresenter = BasePresenter(context)
 
     @Provides
     @Singleton

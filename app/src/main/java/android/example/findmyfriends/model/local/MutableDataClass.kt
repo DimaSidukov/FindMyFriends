@@ -16,6 +16,7 @@ var locData : List<UserLocationData> = listOf()
 
 var isDbCreated = false
 
+var pickAllFlagState = false
 lateinit var array: SparseBooleanArray
 
 fun setVKToken(token: String) {

@@ -2,7 +2,6 @@ package android.example.findmyfriends.viewmodel.friendspresenter.friendsadapter
 
 import android.example.findmyfriends.R
 import android.example.findmyfriends.model.remote.database.entity.UserInfo
-import android.util.Log
 import android.util.SparseBooleanArray
 import android.view.LayoutInflater
 import android.view.View
@@ -10,14 +9,16 @@ import android.view.ViewGroup
 import android.widget.CheckBox
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.util.containsValue
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.squareup.picasso.Picasso
 
-class VkFriendListAdapter(private var userData: List<UserInfo>, private var forUpdate: List<UserInfo>) :
+class VkFriendListAdapter(private var userData: List<UserInfo>, private var forUpdate: List<UserInfo>, private val button: FloatingActionButton) :
     RecyclerView.Adapter<VkFriendListAdapter.MyViewHolder>() {
 
     private var checkBoxStateArray = SparseBooleanArray()
-    private var pickAllFlag = false
+    private var flagState = false
 
     inner class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
@@ -27,15 +28,12 @@ class VkFriendListAdapter(private var userData: List<UserInfo>, private var forU
         var checkBox: CheckBox = itemView.findViewById(R.id.check_list_item)
 
         init {
-            checkBox.setOnClickListener {
-                if (checkBoxStateArray.get(adapterPosition, false)) {
-                    checkBox.isChecked = false
-                    checkBoxStateArray.put(adapterPosition, false)
+            itemView.setOnClickListener {
+                onClickListenerHandler(checkBox, adapterPosition)
+            }
 
-                } else {
-                    checkBox.isChecked = true
-                    checkBoxStateArray.put(adapterPosition, true)
-                }
+            checkBox.setOnClickListener {
+                onClickListenerHandler(checkBox, adapterPosition)
             }
         }
     }
@@ -47,12 +45,13 @@ class VkFriendListAdapter(private var userData: List<UserInfo>, private var forU
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
 
-        if(pickAllFlag) {
-            holder.checkBox.isChecked = pickAllFlag
-            for(i in userData.indices) {
-                checkBoxStateArray.put(i, pickAllFlag)
-                if(i == userData.indices.last)
-                    pickAllFlag = false
+        if(flagState) {
+            holder.checkBox.isChecked = flagState
+            for (i in userData.indices) {
+                checkBoxStateArray.put(i, flagState)
+                if (i == userData.indices.last) {
+                    flagState = !flagState
+                }
             }
         }
 
@@ -74,8 +73,24 @@ class VkFriendListAdapter(private var userData: List<UserInfo>, private var forU
 
     override fun getItemCount() = forUpdate.size
 
+    private fun onClickListenerHandler(checkBox: CheckBox, adapterPosition: Int) {
+        if (checkBoxStateArray.get(adapterPosition, false)) {
+            checkBox.isChecked = false
+            checkBoxStateArray.put(adapterPosition, false)
+
+        } else {
+            checkBox.isChecked = true
+            checkBoxStateArray.put(adapterPosition, true)
+        }
+
+        if(getChecked().containsValue(true)) {
+            button.visibility = View.VISIBLE
+        } else button.visibility = View.GONE
+    }
+
     fun selectAll() {
-        pickAllFlag = !pickAllFlag
+        flagState = true
+        button.visibility = View.VISIBLE
         notifyDataSetChanged()
     }
 
@@ -91,4 +106,5 @@ class VkFriendListAdapter(private var userData: List<UserInfo>, private var forU
     }
 
     fun getList() = userData
+
 }

@@ -55,6 +55,16 @@
         android:src="@drawable/ic_launcher_next_foreground"
         android:contentDescription="@string/see_on_map"
         app:maxImageSize="36dp"
+        android:visibility="gone"
         app:tint="@color/white"
         android:id="@+id/open_map_button"/>
+
+    <ProgressBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:indeterminate="true"
+        style="@style/Widget.AppCompat.ProgressBar"
+        android:id="@+id/progress_bar"
+        android:visibility="gone"/>
 </RelativeLayout>
