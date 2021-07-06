@@ -15,9 +15,7 @@ Mark your VK friends' cities location on map
 
 Что осталось доделать:
 * Появление кнопки запуска карты, если хоть один флажок checked
-* Работы с Moxy и Dagger2
 * При смене аккаунта происходит смешение данных в базе данных. Очистить базу данных при смене аккаунта
-* Советы по ускорению работы RecyclerView
 * Progress-bar при нажатии на кнопку запуска карты
 
 Useful links: https://www.raywenderlich.com/262-dependency-injection-in-android-with-dagger-2-and-kotlin
