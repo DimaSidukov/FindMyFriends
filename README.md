@@ -17,5 +17,3 @@ Mark your VK friends' cities location on map
 * Появление кнопки запуска карты, если хоть один флажок checked
 * При смене аккаунта происходит смешение данных в базе данных. Очистить базу данных при смене аккаунта
 * Progress-bar при нажатии на кнопку запуска карты
-
-Useful links: https://www.raywenderlich.com/262-dependency-injection-in-android-with-dagger-2-and-kotlin
