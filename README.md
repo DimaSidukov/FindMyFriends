@@ -10,6 +10,7 @@ Mark your VK friends' cities location on map
 * VK Android SDK
 * Retrofit
 * Gson
+* ROOM
 * Moxy
 * Dagger
 
