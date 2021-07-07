@@ -1,4 +1,4 @@
-package android.example.findmyfriends.di
+package android.example.findmyfriends.di.modules
 
 import android.content.Context
 import android.example.findmyfriends.viewmodel.common.BasePresenter

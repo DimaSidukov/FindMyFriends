@@ -1,8 +1,6 @@
-package android.example.findmyfriends.di
+package android.example.findmyfriends.di.modules
 
 import android.example.findmyfriends.model.local.VK_FRIENDS_URL
-import android.example.findmyfriends.model.local.miscURL
-import android.example.findmyfriends.model.local.requestFriendsVK
 import dagger.Module
 import dagger.Provides
 import retrofit2.Retrofit

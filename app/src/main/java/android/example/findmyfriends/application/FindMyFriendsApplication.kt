@@ -1,9 +1,9 @@
 package android.example.findmyfriends.application
 
 import android.app.Application
-import android.example.findmyfriends.di.AppComponent
-import android.example.findmyfriends.di.AppModule
-import android.example.findmyfriends.di.DaggerAppComponent
+import android.example.findmyfriends.di.components.AppComponent
+import android.example.findmyfriends.di.modules.AppModule
+import android.example.findmyfriends.di.components.DaggerAppComponent
 
 open class FindMyFriendsApplication : Application() {
 

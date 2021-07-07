@@ -19,12 +19,7 @@ import android.example.findmyfriends.viewmodel.friendspresenter.moxyinterfaces.F
 import android.location.Geocoder
 import android.text.Editable
 import android.util.Log
-import android.view.View
-import android.view.Window
-import android.view.WindowManager
-import android.widget.ProgressBar
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import moxy.MvpPresenter
 import retrofit2.Call
 import retrofit2.Callback
@@ -41,29 +36,31 @@ class FriendsPresenter(context: Context) : MvpPresenter<FriendsActivityView>() {
         viewState.setButtonState()
     }
 
+
     val basePresenter = BasePresenter(context)
 
-    private fun getResponse(vkFriendsService: VkFriendsService,
-                            request: String, adapter: VkFriendListAdapter, db: UserInfoDao?) {
+    private fun onResponse(db: UserInfoDao?,
+                           vkFriendsService: VkFriendsService,
+                           request: String, ) {
         vkFriendsService.getFriendList(request).enqueue(object : Callback<GetVkFriendsData> {
             override fun onResponse(call: Call<GetVkFriendsData>, response: Response<GetVkFriendsData>) {
 
-                val result = response.body()?.response!!
+                if(basePresenter.isNetworkAvailable() && !isDbCreated) {
+                    val result = response.body()?.response!!
 
-                for(i in 0 until result.count!!) {
-                    if(result.items?.get(i)?.city?.title != null) {
-                        val nameOfUser = result.items[i].first_name + " " + result.items[i].last_name
-                        val user = UserInfo(id = result.items[i].id!!, name = nameOfUser,
-                            city = result.items[i].city?.title!!, photo_100 = result.items[i].photo_100!!)
+                    for(i in 0 until result.count!!) {
+                        if(result.items?.get(i)?.city?.title != null) {
+                            val nameOfUser = result.items[i].first_name + " " + result.items[i].last_name
+                            val user = UserInfo(id = result.items[i].id!!, name = nameOfUser,
+                                city = result.items[i].city?.title!!, photo_100 = result.items[i].photo_100!!)
 
-                        GlobalScope.launch {
-                            db?.insertUserInfo(user)
+                            GlobalScope.launch(Dispatchers.IO) {
+                                db?.insertUserInfo(user)
+                            }
                         }
                     }
+                    isDbCreated = true
                 }
-
-                isDbCreated = true
-                adapter.notifyDataSetChanged()
             }
             override fun onFailure(call: Call<GetVkFriendsData>, t: Throwable) {
                 basePresenter.makeToast("Не удалось загрузить данные")
@@ -71,40 +68,33 @@ class FriendsPresenter(context: Context) : MvpPresenter<FriendsActivityView>() {
         })
     }
 
-    private fun getOfflineFromDB(adapter: VkFriendListAdapter) {
+    fun setOnlineOrOffline(db: UserInfoDao?, vkFriendsService: VkFriendsService, request: String, adapter: VkFriendListAdapter) {
+        if(basePresenter.isNetworkAvailable() && !isDbCreated) {
+            onResponse(db, vkFriendsService, request)
+        }
         adapter.notifyDataSetChanged()
     }
 
-    fun setOnlineOrOffline(db: UserInfoDao?, vkFriendsService: VkFriendsService, request: String, adapter: VkFriendListAdapter) {
-        if(basePresenter.isNetworkAvailable() && !isDbCreated) {
-            getResponse(vkFriendsService, request, adapter, db)
-        } else {
-            getOfflineFromDB(adapter)
-        }
-    }
+
 
     fun setArrayOfChecked(vkAdapter: VkFriendListAdapter) {
         array = vkAdapter.getChecked()
     }
 
     fun setChecksBeforeDestruction(vkAdapter: VkFriendListAdapter) {
+
         try {
             vkAdapter.setChecked(array)
-            val (first, _) = getExclusiveIndices(vkAdapter)
-            Log.d("USERS PICKED", first.toString())
-            Log.d("USERS PICKED LENGTH", first.size.toString())
             vkAdapter.notifyDataSetChanged()
         } catch (e: Exception) { }
     }
 
     fun getUsers(users: UserInfoDao?) : List<UserInfo> {
         val userList = mutableListOf<UserInfo>()
-        try {
-            GlobalScope.launch {
-                userList.clear()
-                userList.addAll(users?.getAllUsers()!!)
-            }
-        } catch (e: Exception) { }
+        GlobalScope.launch {
+            userList.clear()
+            userList.addAll(users?.getAllUsers()!!)
+        }
 
         return userList
     }
@@ -114,11 +104,11 @@ class FriendsPresenter(context: Context) : MvpPresenter<FriendsActivityView>() {
     fun selectAll(vkAdapter: VkFriendListAdapter) = vkAdapter.selectAll()
 
     fun controlTextFlow(s: Editable?, adapter: VkFriendListAdapter) {
+
         val initialList = adapter.getList()
         val updated : MutableList<UserInfo> = mutableListOf()
         for(item in initialList) {
             if(item.name.lowercase().contains(s.toString().lowercase())) {
-                Log.d("WHILE ${s.toString()}", item.name)
                 updated.add(item)
             }
         }
@@ -135,20 +125,19 @@ class FriendsPresenter(context: Context) : MvpPresenter<FriendsActivityView>() {
             if (listOfChecked.isEmpty())
                 basePresenter.makeToast("Вы ничего не выбрали!")
             else {
-                GlobalScope.launch {
-                    val checkedUsers = mutableListOf<UserInfo>()
-                    for (i in 0 until listOfChecked.size) checkedUsers.add(initialList[listOfChecked[i]])
+                val checkedUsers = mutableListOf<UserInfo>()
+                for (i in 0 until listOfChecked.size) checkedUsers.add(initialList[listOfChecked[i]])
 
-                    locData = getCoordinatesByLocation(viewActivity, checkedUsers)
+                locData = getCoordinatesByLocation(viewActivity, checkedUsers)
 
-                    val mapIntent = Intent(viewActivity, MapsActivity::class.java)
-                    viewActivity.startActivity(mapIntent)
-                }
+                val mapIntent = Intent(viewActivity, MapsActivity::class.java)
+                viewActivity.startActivity(mapIntent)
             }
         }
     }
 
     fun getExclusiveIndices(adapter: VkFriendListAdapter): Pair<MutableList<Int>, List<UserInfo>> {
+
         val list = adapter.getChecked()
         val initialList: List<UserInfo> = adapter.getList()
         val listOfChecked = mutableListOf<Int>()

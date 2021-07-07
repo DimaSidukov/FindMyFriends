@@ -64,6 +64,8 @@ class VkFriendListAdapter(private var userData: List<UserInfo>, private var forU
             }
         }
 
+        checkOnButton()
+
         holder.checkBox.isChecked = checkBoxStateArray.get(position, false)
 
         holder.nameSurname.text = userData[position].name
@@ -83,6 +85,10 @@ class VkFriendListAdapter(private var userData: List<UserInfo>, private var forU
             checkBoxStateArray.put(adapterPosition, true)
         }
 
+        checkOnButton()
+    }
+
+    private fun checkOnButton() {
         if(getChecked().containsValue(true)) {
             button.visibility = View.VISIBLE
         } else button.visibility = View.GONE

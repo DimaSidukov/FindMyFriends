@@ -1,4 +1,4 @@
-package android.example.findmyfriends.di
+package android.example.findmyfriends.di.modules
 
 import android.app.Application
 import android.content.Context
