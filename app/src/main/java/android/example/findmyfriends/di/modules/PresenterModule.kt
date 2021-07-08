@@ -1,7 +1,6 @@
 package android.example.findmyfriends.di.modules
 
-import android.content.Context
-import android.example.findmyfriends.viewmodel.common.BasePresenter
+import android.example.findmyfriends.viewmodel.friendspresenter.FriendsPresenter
 import android.example.findmyfriends.viewmodel.mainpresenter.MainPresenter
 import android.example.findmyfriends.viewmodel.mappresenter.MapPresenter
 import dagger.Module
@@ -13,13 +12,13 @@ class PresenterModule() {
 
     @Provides
     @Singleton
-    fun provideBasePresenter(context: Context) : BasePresenter = BasePresenter(context)
+    fun provideMainPresenter(): MainPresenter = MainPresenter()
 
     @Provides
     @Singleton
-    fun provideMainPresenter(context: Context): MainPresenter = MainPresenter(context)
+    fun provideFriendsPresenter(): FriendsPresenter = FriendsPresenter()
 
     @Provides
     @Singleton
-    fun provideMapPresenter(context: Context) : MapPresenter = MapPresenter(context)
+    fun provideMapPresenter(): MapPresenter = MapPresenter()
 }

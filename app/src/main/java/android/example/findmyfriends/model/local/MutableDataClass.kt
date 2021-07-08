@@ -2,8 +2,6 @@ package android.example.findmyfriends.model.local
 
 import android.example.findmyfriends.model.remote.geodata.UserLocationData
 import android.util.SparseBooleanArray
-import dagger.Provides
-import javax.inject.Singleton
 
 var textViewText : String? = null
 
@@ -16,9 +14,8 @@ var locData : List<UserLocationData> = listOf()
 
 var isDbCreated = false
 
-var pickAllFlagState = false
 lateinit var array: SparseBooleanArray
 
-fun setVKToken(token: String) {
+fun setToken(token: String) {
     vkAccessToken = token
 }

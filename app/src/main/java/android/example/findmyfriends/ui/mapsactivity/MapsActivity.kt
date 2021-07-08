@@ -14,7 +14,7 @@ import javax.inject.Inject
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
-    lateinit var map: GoogleMap
+    private lateinit var map: GoogleMap
     private lateinit var binding: ActivityMapsBinding
 
     @Inject

@@ -1,7 +1,6 @@
 package android.example.findmyfriends.viewmodel.friendspresenter
 
 import android.content.Context
-import android.content.Intent
 import android.example.findmyfriends.model.local.array
 import android.example.findmyfriends.model.local.isDbCreated
 import android.example.findmyfriends.model.local.locData
@@ -11,23 +10,23 @@ import android.example.findmyfriends.model.remote.database.entity.UserInfo
 import android.example.findmyfriends.model.remote.geodata.UserLocationData
 import android.example.findmyfriends.model.remote.vk.friendsinfo.GetVkFriendsData
 import android.example.findmyfriends.model.remote.vk.retrofitservice.VkFriendsService
-import android.example.findmyfriends.ui.friendsactivity.FriendListActivity
-import android.example.findmyfriends.ui.mapsactivity.MapsActivity
 import android.example.findmyfriends.viewmodel.common.BasePresenter
 import android.example.findmyfriends.viewmodel.friendspresenter.friendsadapter.VkFriendListAdapter
 import android.example.findmyfriends.viewmodel.friendspresenter.moxyinterfaces.FriendsActivityView
 import android.location.Geocoder
 import android.text.Editable
-import android.util.Log
-import kotlinx.coroutines.*
+import androidx.appcompat.app.AppCompatActivity
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import moxy.MvpPresenter
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.util.*
+import javax.inject.Inject
 
-
-class FriendsPresenter(context: Context) : MvpPresenter<FriendsActivityView>() {
+class FriendsPresenter @Inject constructor() : MvpPresenter<FriendsActivityView>(), BasePresenter {
 
     fun onViewAttach() {
         super.onFirstViewAttach()
@@ -36,46 +35,35 @@ class FriendsPresenter(context: Context) : MvpPresenter<FriendsActivityView>() {
         viewState.setButtonState()
     }
 
-
-    val basePresenter = BasePresenter(context)
-
-    private fun onResponse(db: UserInfoDao?,
-                           vkFriendsService: VkFriendsService,
-                           request: String, ) {
+    fun onResponse(db: UserInfoDao?, vkFriendsService: VkFriendsService,
+                   request: String, adapter: VkFriendListAdapter) : Boolean {
+        var response = true
         vkFriendsService.getFriendList(request).enqueue(object : Callback<GetVkFriendsData> {
             override fun onResponse(call: Call<GetVkFriendsData>, response: Response<GetVkFriendsData>) {
 
-                if(basePresenter.isNetworkAvailable() && !isDbCreated) {
-                    val result = response.body()?.response!!
+                val result = response.body()?.response!!
 
-                    for(i in 0 until result.count!!) {
-                        if(result.items?.get(i)?.city?.title != null) {
-                            val nameOfUser = result.items[i].first_name + " " + result.items[i].last_name
-                            val user = UserInfo(id = result.items[i].id!!, name = nameOfUser,
-                                city = result.items[i].city?.title!!, photo_100 = result.items[i].photo_100!!)
+                for(i in 0 until result.count!!) {
+                    if(result.items?.get(i)?.city?.title != null) {
+                        val nameOfUser = result.items[i].first_name + " " + result.items[i].last_name
+                        val user = UserInfo(id = result.items[i].id!!, name = nameOfUser,
+                            city = result.items[i].city?.title!!, photo_100 = result.items[i].photo_100!!)
 
-                            GlobalScope.launch(Dispatchers.IO) {
-                                db?.insertUserInfo(user)
-                            }
+                        GlobalScope.launch(Dispatchers.IO) {
+                            db?.insertUserInfo(user)
                         }
                     }
-                    isDbCreated = true
                 }
+                isDbCreated = true
             }
             override fun onFailure(call: Call<GetVkFriendsData>, t: Throwable) {
-                basePresenter.makeToast("Не удалось загрузить данные")
+                response = false
             }
         })
-    }
 
-    fun setOnlineOrOffline(db: UserInfoDao?, vkFriendsService: VkFriendsService, request: String, adapter: VkFriendListAdapter) {
-        if(basePresenter.isNetworkAvailable() && !isDbCreated) {
-            onResponse(db, vkFriendsService, request)
-        }
         adapter.notifyDataSetChanged()
+        return response
     }
-
-
 
     fun setArrayOfChecked(vkAdapter: VkFriendListAdapter) {
         array = vkAdapter.getChecked()
@@ -108,31 +96,21 @@ class FriendsPresenter(context: Context) : MvpPresenter<FriendsActivityView>() {
         val initialList = adapter.getList()
         val updated : MutableList<UserInfo> = mutableListOf()
         for(item in initialList) {
-            if(item.name.lowercase().contains(s.toString().lowercase())) {
+            if(item.name.lowercase().startsWith(s.toString().lowercase())) {
                 updated.add(item)
             }
         }
         adapter.filterList(updated)
     }
 
-    fun openMapHandler(viewActivity: FriendListActivity, adapter: VkFriendListAdapter) {
+    fun openMapHandler(viewActivity: AppCompatActivity, adapter: VkFriendListAdapter) {
 
-        if (!basePresenter.isNetworkAvailable()) {
-            basePresenter.makeToast("Проверьте подключение к интернету!")
-        } else {
-            val (listOfChecked, initialList) = getExclusiveIndices(adapter)
+        val (listOfChecked, initialList) = getExclusiveIndices(adapter)
+        if (listOfChecked.isNotEmpty()) {
+            val checkedUsers = mutableListOf<UserInfo>()
+            for (i in 0 until listOfChecked.size) checkedUsers.add(initialList[listOfChecked[i]])
 
-            if (listOfChecked.isEmpty())
-                basePresenter.makeToast("Вы ничего не выбрали!")
-            else {
-                val checkedUsers = mutableListOf<UserInfo>()
-                for (i in 0 until listOfChecked.size) checkedUsers.add(initialList[listOfChecked[i]])
-
-                locData = getCoordinatesByLocation(viewActivity, checkedUsers)
-
-                val mapIntent = Intent(viewActivity, MapsActivity::class.java)
-                viewActivity.startActivity(mapIntent)
-            }
+            locData = getCoordinatesByLocation(viewActivity, checkedUsers)
         }
     }
 
@@ -177,9 +155,4 @@ class FriendsPresenter(context: Context) : MvpPresenter<FriendsActivityView>() {
 
         return listOfLocations
     }
-
-    fun accessRequestVK() = basePresenter.accessRequestVK()
-    fun accessCurrentToken() = basePresenter.accessCurrentToken()
-    fun accessMiscURL() = basePresenter.accessMiscURL()
-
 }
