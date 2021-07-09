@@ -4,12 +4,14 @@ import android.content.Intent
 import android.example.findmyfriends.R
 import android.example.findmyfriends.application.FindMyFriendsApplication
 import android.example.findmyfriends.model.remote.database.dao.UserInfoDao
+import android.example.findmyfriends.model.remote.database.entity.UserInfo
+import android.example.findmyfriends.model.remote.vk.friendsinfo.GetVkFriendsData
 import android.example.findmyfriends.model.remote.vk.retrofitservice.VkFriendsService
 import android.example.findmyfriends.ui.mapsactivity.MapsActivity
 import android.example.findmyfriends.viewmodel.friendspresenter.FriendsPresenter
 import android.example.findmyfriends.viewmodel.friendspresenter.friendsadapter.VkFriendListAdapter
-import android.example.findmyfriends.viewmodel.friendspresenter.moxyinterfaces.FriendsActivityView
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.WindowManager
 import android.widget.Button
@@ -20,13 +22,20 @@ import androidx.core.widget.doAfterTextChanged
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import moxy.MvpAppCompatActivity
 import moxy.ktx.moxyPresenter
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import retrofit2.Retrofit
+import java.lang.Exception
 import javax.inject.Inject
 
-class FriendListActivity @Inject constructor() : MvpAppCompatActivity(R.layout.activity_friend_list), FriendsActivityView {
+class FriendListActivity @Inject constructor() : MvpAppCompatActivity(R.layout.activity_friend_list), FriendsView {
 
     private val presenter by moxyPresenter { FriendsPresenter() }
 
@@ -57,11 +66,22 @@ class FriendListActivity @Inject constructor() : MvpAppCompatActivity(R.layout.a
 
         initializeElements()
         setRequest()
-        buildRecyclerView()
 
-        val vkFriendsService: VkFriendsService = retrofit.create(VkFriendsService::class.java)
-        if (!presenter.onResponse(usersDao, vkFriendsService, request, vkAdapter))
-            makeToast("Не удалось загрузить данные")
+        val vkFriendsService = retrofit.create(VkFriendsService::class.java)
+        runBlocking {
+            vkFriendsService.getFriendList(request).enqueue(object : Callback<GetVkFriendsData> {
+                override fun onResponse(call: Call<GetVkFriendsData>, response: Response<GetVkFriendsData>) {
+                    presenter.onResponse(response, usersDao)
+                }
+
+                override fun onFailure(call: Call<GetVkFriendsData>, t: Throwable) {
+                    makeToast("Не удалось загрузить данные")
+                }
+            })
+        }
+
+        Log.d("ALL USERS", "COLLECTED")
+        buildRecyclerView()
 
         selectAllButton.setOnClickListener {
             presenter.selectAll(vkAdapter)
@@ -73,12 +93,12 @@ class FriendListActivity @Inject constructor() : MvpAppCompatActivity(R.layout.a
         }
 
         openMapButton.setOnClickListener {
+
             progressBar.visibility = View.VISIBLE
             window.setFlags(
                 WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
                 WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
             )
-            runBlocking {
 
                 if (!presenter.isNetworkAvailable(applicationContext)) {
                     makeToast("Проверьте подключение к интернету!")
@@ -87,7 +107,7 @@ class FriendListActivity @Inject constructor() : MvpAppCompatActivity(R.layout.a
                     val mapIntent = Intent(this@FriendListActivity, MapsActivity::class.java)
                     startActivity(mapIntent)
                 }
-            }
+
             progressBar.visibility = View.GONE
             window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
         }
@@ -108,9 +128,11 @@ class FriendListActivity @Inject constructor() : MvpAppCompatActivity(R.layout.a
 
     private fun buildRecyclerView() {
         recyclerView = findViewById(R.id.list_view)
-        vkAdapter = VkFriendListAdapter(presenter.getUsers(usersDao), presenter.getUsers(usersDao), openMapButton)
+        var data : List<UserInfo> = presenter.getUsers(usersDao)
+        vkAdapter = VkFriendListAdapter(data, data, openMapButton)
         recyclerView.layoutManager = LinearLayoutManager(this@FriendListActivity)
         recyclerView.adapter = vkAdapter
+        vkAdapter.notifyDataSetChanged()
     }
 
     override fun onSupportNavigateUp(): Boolean {

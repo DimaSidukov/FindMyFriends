@@ -3,10 +3,13 @@ package android.example.findmyfriends.viewmodel.mappresenter
 import android.example.findmyfriends.viewmodel.common.BasePresenter
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
+import android.example.findmyfriends.ui.mapsactivity.MapView
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import moxy.InjectViewState
 
-class MapPresenter : BasePresenter {
+@InjectViewState
+class MapPresenter : BasePresenter<MapView>() {
 
     fun showOneTheMap(map: GoogleMap) {
         lateinit var marker: LatLng

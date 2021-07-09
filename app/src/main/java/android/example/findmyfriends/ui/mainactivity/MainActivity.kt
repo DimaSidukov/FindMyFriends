@@ -16,7 +16,7 @@ import com.vk.api.sdk.auth.VKScope
 import javax.inject.Inject
 
 
-class MainActivity : AppCompatActivity(), MainView{
+class MainActivity : AppCompatActivity(), MainView {
 
     @Inject
     lateinit var presenter : MainPresenter

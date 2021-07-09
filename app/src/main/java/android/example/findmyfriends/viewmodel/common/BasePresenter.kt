@@ -5,10 +5,12 @@ import android.example.findmyfriends.model.local.locData
 import android.example.findmyfriends.model.local.miscURL
 import android.example.findmyfriends.model.local.requestFriendsVK
 import android.example.findmyfriends.model.local.vkAccessToken
+import android.example.findmyfriends.ui.common.BaseView
 import android.net.ConnectivityManager
 import androidx.appcompat.app.AppCompatActivity
+import moxy.MvpPresenter
 
-interface BasePresenter {
+open class BasePresenter<view: BaseView> : MvpPresenter<view>() {
 
     fun accessVKToken() = vkAccessToken
     fun accessCurrentToken() = vkAccessToken

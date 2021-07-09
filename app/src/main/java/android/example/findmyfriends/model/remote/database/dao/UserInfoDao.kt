@@ -1,6 +1,7 @@
 package android.example.findmyfriends.model.remote.database.dao
 
 import android.example.findmyfriends.model.remote.database.entity.UserInfo
+import androidx.lifecycle.LiveData
 import androidx.room.*
 
 @Dao

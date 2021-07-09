@@ -10,23 +10,27 @@ import android.example.findmyfriends.model.remote.database.entity.UserInfo
 import android.example.findmyfriends.model.remote.geodata.UserLocationData
 import android.example.findmyfriends.model.remote.vk.friendsinfo.GetVkFriendsData
 import android.example.findmyfriends.model.remote.vk.retrofitservice.VkFriendsService
+import android.example.findmyfriends.ui.friendsactivity.FriendsView
 import android.example.findmyfriends.viewmodel.common.BasePresenter
 import android.example.findmyfriends.viewmodel.friendspresenter.friendsadapter.VkFriendListAdapter
-import android.example.findmyfriends.viewmodel.friendspresenter.moxyinterfaces.FriendsActivityView
 import android.location.Geocoder
+import android.provider.Settings
 import android.text.Editable
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import moxy.MvpPresenter
+import androidx.lifecycle.LiveData
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import kotlinx.coroutines.*
+import moxy.InjectViewState
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import retrofit2.Retrofit
 import java.util.*
 import javax.inject.Inject
 
-class FriendsPresenter @Inject constructor() : MvpPresenter<FriendsActivityView>(), BasePresenter {
+@InjectViewState
+class FriendsPresenter @Inject constructor() : BasePresenter<FriendsView>() {
 
     fun onViewAttach() {
         super.onFirstViewAttach()
@@ -35,34 +39,23 @@ class FriendsPresenter @Inject constructor() : MvpPresenter<FriendsActivityView>
         viewState.setButtonState()
     }
 
-    fun onResponse(db: UserInfoDao?, vkFriendsService: VkFriendsService,
-                   request: String, adapter: VkFriendListAdapter) : Boolean {
-        var response = true
-        vkFriendsService.getFriendList(request).enqueue(object : Callback<GetVkFriendsData> {
-            override fun onResponse(call: Call<GetVkFriendsData>, response: Response<GetVkFriendsData>) {
-
-                val result = response.body()?.response!!
-
-                for(i in 0 until result.count!!) {
-                    if(result.items?.get(i)?.city?.title != null) {
-                        val nameOfUser = result.items[i].first_name + " " + result.items[i].last_name
-                        val user = UserInfo(id = result.items[i].id!!, name = nameOfUser,
-                            city = result.items[i].city?.title!!, photo_100 = result.items[i].photo_100!!)
-
-                        GlobalScope.launch(Dispatchers.IO) {
-                            db?.insertUserInfo(user)
-                        }
-                    }
+    fun onResponse(response: Response<GetVkFriendsData>, db: UserInfoDao?) {
+        val result = response.body()?.response!!
+            for (i in 0 until result.count!!) {
+                if (result.items?.get(i)?.city?.title != null) {
+                    val nameOfUser = result.items[i].first_name + " " + result.items[i].last_name
+                    val user = UserInfo(
+                        id = result.items[i].id!!,
+                        name = nameOfUser,
+                        city = result.items[i].city?.title!!,
+                        photo_100 = result.items[i].photo_100!!
+                    )
+                    Log.d("USERS", user.name)
+                    db?.insertUserInfo(user)
                 }
-                isDbCreated = true
             }
-            override fun onFailure(call: Call<GetVkFriendsData>, t: Throwable) {
-                response = false
-            }
-        })
 
-        adapter.notifyDataSetChanged()
-        return response
+        isDbCreated = true
     }
 
     fun setArrayOfChecked(vkAdapter: VkFriendListAdapter) {
@@ -77,15 +70,17 @@ class FriendsPresenter @Inject constructor() : MvpPresenter<FriendsActivityView>
         } catch (e: Exception) { }
     }
 
-    fun getUsers(users: UserInfoDao?) : List<UserInfo> {
-        val userList = mutableListOf<UserInfo>()
-        GlobalScope.launch {
-            userList.clear()
-            userList.addAll(users?.getAllUsers()!!)
+    fun getUsers(users: UserInfoDao?): List<UserInfo> {
+        val list : List<UserInfo>
+        var response = users?.getAllUsers()
+        while (response == null) {
+            response = users?.getAllUsers()
         }
-
-        return userList
+        Log.d("RESPONSE", response.toString())
+        list = response.toList()
+        return list
     }
+
 
     fun getText() = textViewText
 
@@ -105,12 +100,14 @@ class FriendsPresenter @Inject constructor() : MvpPresenter<FriendsActivityView>
 
     fun openMapHandler(viewActivity: AppCompatActivity, adapter: VkFriendListAdapter) {
 
-        val (listOfChecked, initialList) = getExclusiveIndices(adapter)
-        if (listOfChecked.isNotEmpty()) {
-            val checkedUsers = mutableListOf<UserInfo>()
-            for (i in 0 until listOfChecked.size) checkedUsers.add(initialList[listOfChecked[i]])
+        GlobalScope.launch {
+            val (listOfChecked, initialList) = getExclusiveIndices(adapter)
+            if (listOfChecked.isNotEmpty()) {
+                val checkedUsers = mutableListOf<UserInfo>()
+                for (i in 0 until listOfChecked.size) checkedUsers.add(initialList[listOfChecked[i]])
 
-            locData = getCoordinatesByLocation(viewActivity, checkedUsers)
+                locData = getCoordinatesByLocation(viewActivity, checkedUsers)
+            }
         }
     }
 
