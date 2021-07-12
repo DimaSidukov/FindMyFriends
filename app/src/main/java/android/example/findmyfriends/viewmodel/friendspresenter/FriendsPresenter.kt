@@ -1,31 +1,21 @@
 package android.example.findmyfriends.viewmodel.friendspresenter
 
 import android.content.Context
-import android.example.findmyfriends.model.local.array
-import android.example.findmyfriends.model.local.isDbCreated
-import android.example.findmyfriends.model.local.locData
-import android.example.findmyfriends.model.local.textViewText
+import android.example.findmyfriends.model.local.*
 import android.example.findmyfriends.model.remote.database.dao.UserInfoDao
 import android.example.findmyfriends.model.remote.database.entity.UserInfo
 import android.example.findmyfriends.model.remote.geodata.UserLocationData
 import android.example.findmyfriends.model.remote.vk.friendsinfo.GetVkFriendsData
-import android.example.findmyfriends.model.remote.vk.retrofitservice.VkFriendsService
 import android.example.findmyfriends.ui.friendsactivity.FriendsView
 import android.example.findmyfriends.viewmodel.common.BasePresenter
 import android.example.findmyfriends.viewmodel.friendspresenter.friendsadapter.VkFriendListAdapter
 import android.location.Geocoder
-import android.provider.Settings
 import android.text.Editable
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.LiveData
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.*
 import moxy.InjectViewState
-import retrofit2.Call
-import retrofit2.Callback
 import retrofit2.Response
-import retrofit2.Retrofit
 import java.util.*
 import javax.inject.Inject
 
@@ -37,23 +27,26 @@ class FriendsPresenter @Inject constructor() : BasePresenter<FriendsView>() {
 
         viewState.showText(textViewText)
         viewState.setButtonState()
+        viewState.setItemsFlagState()
     }
 
     fun onResponse(response: Response<GetVkFriendsData>, db: UserInfoDao?) {
         val result = response.body()?.response!!
-            for (i in 0 until result.count!!) {
-                if (result.items?.get(i)?.city?.title != null) {
-                    val nameOfUser = result.items[i].first_name + " " + result.items[i].last_name
-                    val user = UserInfo(
-                        id = result.items[i].id!!,
-                        name = nameOfUser,
-                        city = result.items[i].city?.title!!,
-                        photo_100 = result.items[i].photo_100!!
-                    )
-                    Log.d("USERS", user.name)
+
+        for (i in 0 until result.count!!) {
+            if (result.items?.get(i)?.city?.title != null) {
+                val nameOfUser = result.items[i].first_name + " " + result.items[i].last_name
+                val user = UserInfo(
+                    id = result.items[i].id!!,
+                    name = nameOfUser,
+                    city = result.items[i].city?.title!!,
+                    photo_100 = result.items[i].photo_100!!
+                )
+                GlobalScope.launch {
                     db?.insertUserInfo(user)
                 }
             }
+        }
 
         isDbCreated = true
     }
@@ -62,25 +55,31 @@ class FriendsPresenter @Inject constructor() : BasePresenter<FriendsView>() {
         array = vkAdapter.getChecked()
     }
 
-    fun setChecksBeforeDestruction(vkAdapter: VkFriendListAdapter) {
+    fun setItemsStateBeforeDestruction(vkAdapter: VkFriendListAdapter) {
+        vkAdapter.setItemState(allItemsSelectedState)
+    }
 
+    fun setChecksBeforeDestruction(vkAdapter: VkFriendListAdapter) {
         try {
             vkAdapter.setChecked(array)
             vkAdapter.notifyDataSetChanged()
         } catch (e: Exception) { }
     }
 
-    fun getUsers(users: UserInfoDao?): List<UserInfo> {
-        val list : List<UserInfo>
-        var response = users?.getAllUsers()
-        while (response == null) {
-            response = users?.getAllUsers()
-        }
-        Log.d("RESPONSE", response.toString())
-        list = response.toList()
-        return list
+    fun setItemsState(vkAdapter: VkFriendListAdapter) {
+        allItemsSelectedState = vkAdapter.getItemsState()
     }
 
+    fun getUsers(users: UserInfoDao?) {
+        var list : List<UserInfo> = listOf()
+        GlobalScope.launch {
+            while(list.isEmpty())
+                list = users?.getAllUsers()!! as MutableList<UserInfo>
+            userList = list as MutableList<UserInfo>
+        }
+    }
+
+    fun accessUserList() = userList
 
     fun getText() = textViewText
 

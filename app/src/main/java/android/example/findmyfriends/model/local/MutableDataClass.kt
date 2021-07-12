@@ -1,5 +1,6 @@
 package android.example.findmyfriends.model.local
 
+import android.example.findmyfriends.model.remote.database.entity.UserInfo
 import android.example.findmyfriends.model.remote.geodata.UserLocationData
 import android.util.SparseBooleanArray
 
@@ -15,6 +16,9 @@ var locData : List<UserLocationData> = listOf()
 var isDbCreated = false
 
 lateinit var array: SparseBooleanArray
+var allItemsSelectedState = false
+
+var userList : MutableList<UserInfo> = mutableListOf()
 
 fun setToken(token: String) {
     vkAccessToken = token

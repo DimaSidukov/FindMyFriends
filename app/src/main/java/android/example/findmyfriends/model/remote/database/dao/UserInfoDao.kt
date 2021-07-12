@@ -13,12 +13,15 @@ interface UserInfoDao {
     suspend fun updateUserInfo(userInfo: UserInfo)
 
     @Delete
-    suspend fun deleteUserInfo(userInfo: UserInfo)
+    fun deleteUserInfo(userInfo: UserInfo)
 
     @Query("SELECT * FROM UserInfo WHERE id = :id")
     fun getUserInfo(id: Int) : UserInfo
 
     @Query("SELECT * FROM UserInfo")
     fun getAllUsers() : List<UserInfo>
+
+    @Query("DELETE FROM UserInfo")
+    fun deleteAllUser()
 
 }

@@ -1,6 +1,7 @@
 package android.example.findmyfriends.viewmodel.friendspresenter.friendsadapter
 
 import android.example.findmyfriends.R
+import android.example.findmyfriends.model.local.allItemsSelectedState
 import android.example.findmyfriends.model.remote.database.entity.UserInfo
 import android.util.SparseBooleanArray
 import android.view.LayoutInflater
@@ -19,6 +20,7 @@ class VkFriendListAdapter(private var userData: List<UserInfo>, private var forU
 
     private var checkBoxStateArray = SparseBooleanArray()
     private var flagState = false
+    private var allowedToChangeState = false
 
     inner class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
@@ -45,12 +47,12 @@ class VkFriendListAdapter(private var userData: List<UserInfo>, private var forU
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
 
-        if(flagState) {
+        if(allowedToChangeState) {
             holder.checkBox.isChecked = flagState
             for (i in userData.indices) {
                 checkBoxStateArray.put(i, flagState)
                 if (i == userData.indices.last) {
-                    flagState = !flagState
+                    allowedToChangeState = false
                 }
             }
         }
@@ -95,8 +97,12 @@ class VkFriendListAdapter(private var userData: List<UserInfo>, private var forU
     }
 
     fun selectAll() {
-        flagState = true
-        button.visibility = View.VISIBLE
+        allowedToChangeState = true
+        flagState = !flagState
+        if(flagState)
+            button.visibility = View.VISIBLE
+        else
+            button.visibility = View.GONE
         notifyDataSetChanged()
     }
 
@@ -112,5 +118,11 @@ class VkFriendListAdapter(private var userData: List<UserInfo>, private var forU
     }
 
     fun getList() = userData
+
+    fun getItemsState() = flagState
+    fun setItemState(state: Boolean) {
+        flagState = state
+        notifyDataSetChanged()
+    }
 
 }
