@@ -1,20 +1,14 @@
 package android.example.findmyfriends.ui.friendsactivity
 
-import android.content.Context
 import android.content.Intent
 import android.example.findmyfriends.R
 import android.example.findmyfriends.application.FindMyFriendsApplication
-import android.example.findmyfriends.model.local.userList
-import android.example.findmyfriends.model.remote.database.dao.UserInfoDao
-import android.example.findmyfriends.model.remote.database.database.AppDatabase
-import android.example.findmyfriends.model.remote.vk.friendsinfo.GetVkFriendsData
-import android.example.findmyfriends.model.remote.vk.retrofitservice.VkFriendsService
+import android.example.findmyfriends.model.local.allItemsSelectedState
+import android.example.findmyfriends.model.local.array
 import android.example.findmyfriends.ui.mapsactivity.MapsActivity
 import android.example.findmyfriends.viewmodel.friendspresenter.FriendsPresenter
 import android.example.findmyfriends.viewmodel.friendspresenter.friendsadapter.VkFriendListAdapter
 import android.os.Bundle
-import android.util.AttributeSet
-import android.util.Log
 import android.view.View
 import android.view.WindowManager
 import android.widget.Button
@@ -28,22 +22,14 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.*
 import moxy.MvpAppCompatActivity
 import moxy.ktx.moxyPresenter
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import retrofit2.Retrofit
 import java.util.*
-import javax.inject.Inject
+
+//strictly restrain data from presenter, so presenter has to get all the data from database
+//or local data store
 
 class FriendListActivity: MvpAppCompatActivity(R.layout.activity_friend_list), FriendsView {
 
-    private val presenter by moxyPresenter { FriendsPresenter() }
-
-    @Inject
-    lateinit var retrofit: Retrofit
-
-    @Inject
-    lateinit var usersDao: UserInfoDao
+    private val presenter by moxyPresenter { FriendsPresenter(applicationContext) }
 
     private lateinit var vkAdapter: VkFriendListAdapter
     private lateinit var recyclerView: RecyclerView
@@ -53,7 +39,7 @@ class FriendListActivity: MvpAppCompatActivity(R.layout.activity_friend_list), F
     private lateinit var openMapButton : FloatingActionButton
     private lateinit var progressBar: ProgressBar
 
-    private lateinit var request: String
+    private lateinit var token: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -66,42 +52,30 @@ class FriendListActivity: MvpAppCompatActivity(R.layout.activity_friend_list), F
         presenter.onViewAttach()
 
         initializeElements()
-        setRequest()
 
-        val vkFriendsService = retrofit.create(VkFriendsService::class.java)
-        vkFriendsService.getFriendList(request).enqueue(object : Callback<GetVkFriendsData> {
-            override fun onResponse(call: Call<GetVkFriendsData>, response: Response<GetVkFriendsData>) {
-                presenter.onResponse(response, usersDao)
-            }
-
-            override fun onFailure(call: Call<GetVkFriendsData>, t: Throwable) {
-                makeToast("Не удалось загрузить данные")
-            }
-        })
+        if(!presenter.getDataFromVk(token))
+            makeToast("Не удалось загрузить данные")
 
         buildRecyclerView()
 
         selectAllButton.setOnClickListener {
-            presenter.selectAll(vkAdapter)
+            vkAdapter.selectAll()
         }
 
         editText.doAfterTextChanged {
-            val s = editText.text
-            presenter.controlTextFlow(s, vkAdapter)
+            val updated = presenter.updateList(editText.text.toString(), vkAdapter.getList())
+            vkAdapter.filterList(updated)
         }
 
         openMapButton.setOnClickListener {
 
             progressBar.visibility = View.VISIBLE
-            window.setFlags(
-                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
-            )
+            window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
 
-            if (!presenter.isNetworkAvailable(applicationContext)) {
+            if (!presenter.isNetworkAvailable()) {
                 makeToast("Проверьте подключение к интернету!")
             } else {
-                presenter.openMapHandler(this@FriendListActivity, vkAdapter)
+                presenter.openMapHandler(vkAdapter.getChecked(), vkAdapter.getList())
                 val mapIntent = Intent(this@FriendListActivity, MapsActivity::class.java)
                 startActivity(mapIntent)
             }
@@ -111,29 +85,61 @@ class FriendListActivity: MvpAppCompatActivity(R.layout.activity_friend_list), F
         }
     }
 
+    override fun setItemsFlagState() {
+        setItemsStateBeforeDestruction()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        setArrayOfChecked()
+        setItemsState()
+    }
+
+    override fun makeToast(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    }
+
+    override fun finishAndRemoveTask() {
+        presenter.clearData()
+        super.finishAndRemoveTask()
+    }
+
     private fun initializeElements() {
         editText = findViewById(R.id.enter_user)
         selectAllButton = findViewById(R.id.pick_all)
         openMapButton = findViewById(R.id.open_map_button)
         progressBar = findViewById(R.id.progress_bar)
-    }
-
-    private fun setRequest() {
-        request =
-            presenter.accessRequestVK() + intent.getStringExtra(presenter.accessCurrentToken())
-                .toString() + presenter.accessMiscURL()
+        token = intent.getStringExtra(presenter.accessCurrentToken()).toString()
     }
 
     private fun buildRecyclerView() {
-        recyclerView = findViewById(R.id.list_view)
-        runBlocking {
-            presenter.getUsers(usersDao)
-        }
+
         val list = presenter.accessUserList()
+
+        recyclerView = findViewById(R.id.list_view)
         vkAdapter = VkFriendListAdapter(list, list, openMapButton)
         recyclerView.layoutManager = LinearLayoutManager(this@FriendListActivity)
         recyclerView.adapter = vkAdapter
         vkAdapter.notifyDataSetChanged()
+    }
+
+    private fun setChecksBeforeDestruction() {
+        try {
+            vkAdapter.setChecked(array)
+            vkAdapter.notifyDataSetChanged()
+        } catch (e: Exception) { }
+    }
+
+    private fun setItemsState() {
+        allItemsSelectedState = vkAdapter.getItemsState()
+    }
+
+    private fun setArrayOfChecked() {
+        array = vkAdapter.getChecked()
+    }
+
+    private fun setItemsStateBeforeDestruction() {
+        vkAdapter.setItemState(allItemsSelectedState)
     }
 
     override fun onSupportNavigateUp(): Boolean {
@@ -146,29 +152,6 @@ class FriendListActivity: MvpAppCompatActivity(R.layout.activity_friend_list), F
     }
 
     override fun setButtonState() {
-        presenter.setChecksBeforeDestruction(vkAdapter)
-    }
-
-    override fun setItemsFlagState() {
-        presenter.setItemsStateBeforeDestruction(vkAdapter)
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        presenter.setArrayOfChecked(vkAdapter)
-        presenter.setItemsState(vkAdapter)
-    }
-
-    override fun makeToast(message: String) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
-    }
-
-    override fun finishAndRemoveTask() {
-        GlobalScope.launch {
-            usersDao.deleteAllUser()
-        }
-        userList.clear()
-        super.finishAndRemoveTask()
+        setChecksBeforeDestruction()
     }
 }
-

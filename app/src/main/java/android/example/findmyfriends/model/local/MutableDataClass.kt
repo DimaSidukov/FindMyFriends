@@ -18,7 +18,7 @@ var isDbCreated = false
 lateinit var array: SparseBooleanArray
 var allItemsSelectedState = false
 
-var userList : MutableList<UserInfo> = mutableListOf()
+var userList : List<UserInfo> = mutableListOf()
 
 fun setToken(token: String) {
     vkAccessToken = token

@@ -7,21 +7,21 @@ import androidx.room.*
 @Dao
 interface UserInfoDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertUserInfo(userInfo: UserInfo)
+    suspend fun insertUserInfo(userInfo: UserInfo)
 
     @Update
     suspend fun updateUserInfo(userInfo: UserInfo)
 
     @Delete
-    fun deleteUserInfo(userInfo: UserInfo)
+    suspend fun deleteUserInfo(userInfo: UserInfo)
 
     @Query("SELECT * FROM UserInfo WHERE id = :id")
-    fun getUserInfo(id: Int) : UserInfo
+    suspend fun getUserInfo(id: Int) : UserInfo
 
     @Query("SELECT * FROM UserInfo")
-    fun getAllUsers() : List<UserInfo>
+    suspend fun getAllUsers() : List<UserInfo>
 
     @Query("DELETE FROM UserInfo")
-    fun deleteAllUser()
+    suspend fun deleteAllUser()
 
 }

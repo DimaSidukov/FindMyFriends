@@ -3,11 +3,9 @@ package android.example.findmyfriends.ui.mainactivity
 import android.content.Intent
 import android.example.findmyfriends.R
 import android.example.findmyfriends.application.FindMyFriendsApplication
-import android.example.findmyfriends.model.remote.database.database.AppDatabase
 import android.example.findmyfriends.ui.friendsactivity.FriendListActivity
 import android.example.findmyfriends.viewmodel.mainpresenter.MainPresenter
 import android.os.Bundle
-import android.util.Log
 import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -15,7 +13,6 @@ import com.vk.api.sdk.VK
 import com.vk.api.sdk.auth.VKAccessToken
 import com.vk.api.sdk.auth.VKAuthCallback
 import com.vk.api.sdk.auth.VKScope
-import kotlinx.coroutines.*
 import javax.inject.Inject
 
 
@@ -35,13 +32,12 @@ class MainActivity : AppCompatActivity(), MainView {
         val loginButton = findViewById<Button>(R.id.login_vk_button)
 
         loginButton.setOnClickListener {
-            if(presenter.isNetworkAvailable(this)) {
+            if(presenter.isNetworkAvailable()) {
                 if(presenter.verifyVkToken(falseToken)) {
                     startNewActivity()
                 }
                 else {
                     VK.login(this, listOf(VKScope.FRIENDS))
-                    presenter.clearDataBase()
                 }
             }
             else {

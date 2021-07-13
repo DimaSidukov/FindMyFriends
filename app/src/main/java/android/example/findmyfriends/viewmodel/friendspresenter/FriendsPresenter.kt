@@ -1,26 +1,34 @@
 package android.example.findmyfriends.viewmodel.friendspresenter
 
 import android.content.Context
-import android.example.findmyfriends.model.local.*
-import android.example.findmyfriends.model.remote.database.dao.UserInfoDao
+import android.example.findmyfriends.model.local.locData
+import android.example.findmyfriends.model.local.textViewText
+import android.example.findmyfriends.model.local.userList
 import android.example.findmyfriends.model.remote.database.entity.UserInfo
 import android.example.findmyfriends.model.remote.geodata.UserLocationData
-import android.example.findmyfriends.model.remote.vk.friendsinfo.GetVkFriendsData
+import android.example.findmyfriends.repository.database.DataBaseInterfaceHandler
+import android.example.findmyfriends.repository.geocoder.GeocoderInterfaceHandler
+import android.example.findmyfriends.repository.networkapi.RetrofitInterfaceHandler
 import android.example.findmyfriends.ui.friendsactivity.FriendsView
 import android.example.findmyfriends.viewmodel.common.BasePresenter
-import android.example.findmyfriends.viewmodel.friendspresenter.friendsadapter.VkFriendListAdapter
-import android.location.Geocoder
-import android.text.Editable
-import android.util.Log
-import androidx.appcompat.app.AppCompatActivity
-import kotlinx.coroutines.*
+import android.util.SparseBooleanArray
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import moxy.InjectViewState
-import retrofit2.Response
-import java.util.*
 import javax.inject.Inject
 
 @InjectViewState
-class FriendsPresenter @Inject constructor() : BasePresenter<FriendsView>() {
+class FriendsPresenter @Inject constructor (context: Context) : BasePresenter<FriendsView>(context) {
+
+    @Inject
+    lateinit var dbHandler : DataBaseInterfaceHandler
+
+    @Inject
+    lateinit var retrofitHandler: RetrofitInterfaceHandler
+
+    @Inject
+    lateinit var geocoder: GeocoderInterfaceHandler
 
     fun onViewAttach() {
         super.onFirstViewAttach()
@@ -30,92 +38,56 @@ class FriendsPresenter @Inject constructor() : BasePresenter<FriendsView>() {
         viewState.setItemsFlagState()
     }
 
-    fun onResponse(response: Response<GetVkFriendsData>, db: UserInfoDao?) {
-        val result = response.body()?.response!!
+    fun getDataFromVk(token: String) : Boolean {
+        return retrofitHandler.runRetrofit(token)
+    }
 
-        for (i in 0 until result.count!!) {
-            if (result.items?.get(i)?.city?.title != null) {
-                val nameOfUser = result.items[i].first_name + " " + result.items[i].last_name
-                val user = UserInfo(
-                    id = result.items[i].id!!,
-                    name = nameOfUser,
-                    city = result.items[i].city?.title!!,
-                    photo_100 = result.items[i].photo_100!!
-                )
-                GlobalScope.launch {
-                    db?.insertUserInfo(user)
-                }
-            }
+    private fun setUserList() {
+        GlobalScope.launch(Dispatchers.IO) {
+            userList = dbHandler.getFromDataBase()
         }
-
-        isDbCreated = true
     }
 
-    fun setArrayOfChecked(vkAdapter: VkFriendListAdapter) {
-        array = vkAdapter.getChecked()
+    fun accessUserList(): List<UserInfo> {
+        setUserList()
+        return userList
     }
 
-    fun setItemsStateBeforeDestruction(vkAdapter: VkFriendListAdapter) {
-        vkAdapter.setItemState(allItemsSelectedState)
-    }
-
-    fun setChecksBeforeDestruction(vkAdapter: VkFriendListAdapter) {
-        try {
-            vkAdapter.setChecked(array)
-            vkAdapter.notifyDataSetChanged()
-        } catch (e: Exception) { }
-    }
-
-    fun setItemsState(vkAdapter: VkFriendListAdapter) {
-        allItemsSelectedState = vkAdapter.getItemsState()
-    }
-
-    fun getUsers(users: UserInfoDao?) {
-        var list : List<UserInfo> = listOf()
+    fun clearData() {
         GlobalScope.launch {
-            while(list.isEmpty())
-                list = users?.getAllUsers()!! as MutableList<UserInfo>
-            userList = list as MutableList<UserInfo>
+            dbHandler.deleteDataBase()
         }
+        userList = listOf()
     }
 
-    fun accessUserList() = userList
-
-    fun getText() = textViewText
-
-    fun selectAll(vkAdapter: VkFriendListAdapter) = vkAdapter.selectAll()
-
-    fun controlTextFlow(s: Editable?, adapter: VkFriendListAdapter) {
-
-        val initialList = adapter.getList()
+    fun updateList(s: String, initialList: List<UserInfo>): MutableList<UserInfo> {
         val updated : MutableList<UserInfo> = mutableListOf()
         for(item in initialList) {
-            if(item.name.lowercase().startsWith(s.toString().lowercase())) {
+            if(item.name.lowercase().startsWith(s.lowercase())) {
                 updated.add(item)
             }
         }
-        adapter.filterList(updated)
+        return updated
     }
 
-    fun openMapHandler(viewActivity: AppCompatActivity, adapter: VkFriendListAdapter) {
+    fun getText() = textViewText
+
+    fun openMapHandler(list: SparseBooleanArray, inputList: List<UserInfo>) {
 
         GlobalScope.launch {
-            val (listOfChecked, initialList) = getExclusiveIndices(adapter)
+            val (listOfChecked, initialList) = getExclusiveIndices(list, inputList)
             if (listOfChecked.isNotEmpty()) {
                 val checkedUsers = mutableListOf<UserInfo>()
                 for (i in 0 until listOfChecked.size) checkedUsers.add(initialList[listOfChecked[i]])
 
-                locData = getCoordinatesByLocation(viewActivity, checkedUsers)
+                locData = getCoordinatesByLocation(checkedUsers)
             }
         }
     }
 
-    fun getExclusiveIndices(adapter: VkFriendListAdapter): Pair<MutableList<Int>, List<UserInfo>> {
+    fun getExclusiveIndices(list: SparseBooleanArray, initialList: List<UserInfo>): Pair<MutableList<Int>, List<UserInfo>> {
 
-        val list = adapter.getChecked()
-        val initialList: List<UserInfo> = adapter.getList()
         val listOfChecked = mutableListOf<Int>()
-
         for(i in initialList.indices) {
             try {
                 if(list.valueAt(i)) listOfChecked.add(list.keyAt(i))
@@ -125,30 +97,6 @@ class FriendsPresenter @Inject constructor() : BasePresenter<FriendsView>() {
         return Pair(listOfChecked, initialList)
     }
 
-    private fun getCoordinatesByLocation(context: Context, users: List<UserInfo>): MutableList<UserLocationData> {
-
-        val geocoder = Geocoder(context, Locale.getDefault())
-        val listOfLocations = mutableListOf<UserLocationData>()
-
-        val repetitiveCities = mutableListOf<String>()
-
-        for (user in users) {
-            if (!repetitiveCities.contains(user.city)) {
-                val result = geocoder.getFromLocationName(user.city, 1)
-                try {
-                    listOfLocations.add(
-                        UserLocationData(
-                            result[0].latitude,
-                            result[0].longitude,
-                            user.name,
-                            user.city
-                        )
-                    )
-                } catch (e: Exception) { }
-                repetitiveCities.add(user.city)
-            }
-        }
-
-        return listOfLocations
-    }
+    private fun getCoordinatesByLocation(users: List<UserInfo>):
+            MutableList<UserLocationData> = geocoder.buildList(users)
 }
