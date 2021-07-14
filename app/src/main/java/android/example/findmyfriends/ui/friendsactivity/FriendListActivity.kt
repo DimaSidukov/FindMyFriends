@@ -2,7 +2,7 @@ package android.example.findmyfriends.ui.friendsactivity
 
 import android.content.Intent
 import android.example.findmyfriends.R
-import android.example.findmyfriends.application.FindMyFriendsApplication
+import android.example.findmyfriends.application.App
 import android.example.findmyfriends.model.local.allItemsSelectedState
 import android.example.findmyfriends.model.local.array
 import android.example.findmyfriends.ui.mapsactivity.MapsActivity
@@ -21,15 +21,29 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.*
 import moxy.MvpAppCompatActivity
-import moxy.ktx.moxyPresenter
+import moxy.presenter.InjectPresenter
+import moxy.presenter.ProvidePresenter
 import java.util.*
+import javax.inject.Inject
 
 //strictly restrain data from presenter, so presenter has to get all the data from database
 //or local data store
 
 class FriendListActivity: MvpAppCompatActivity(R.layout.activity_friend_list), FriendsView {
 
-    private val presenter by moxyPresenter { FriendsPresenter(applicationContext) }
+//    рабочий способ, но Moxy не сохраняется
+//    @Inject
+//    lateinit var presenter: FriendsPresenter
+
+    //@InjectPresenter
+    //private val presenter by moxyPresenter { FriendsPresenter() }
+
+    @Inject
+    @InjectPresenter
+    internal lateinit var presenter: FriendsPresenter
+
+    @ProvidePresenter
+    fun providePresenter(): FriendsPresenter = presenter
 
     private lateinit var vkAdapter: VkFriendListAdapter
     private lateinit var recyclerView: RecyclerView
@@ -46,7 +60,7 @@ class FriendListActivity: MvpAppCompatActivity(R.layout.activity_friend_list), F
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_friend_list)
 
-        (application as FindMyFriendsApplication).findMyFriendsComponent.inject(this)
+        (application as App).appComponent.inject(this)
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         presenter.onViewAttach()

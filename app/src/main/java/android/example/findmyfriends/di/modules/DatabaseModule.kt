@@ -18,8 +18,4 @@ class DatabaseModule {
     @Provides
     @Singleton
     fun provideUserInfoDao(context: Context) : UserInfoDao = provideDataBase(context).userInfoDao()
-
-    @Provides
-    @Singleton
-    fun provideDataBaseHandler() : DataBaseInterfaceHandler = DataBaseInterfaceHandler()
 }

@@ -1,7 +1,7 @@
 package android.example.findmyfriends.ui.mapsactivity
 
 import android.example.findmyfriends.R
-import android.example.findmyfriends.application.FindMyFriendsApplication
+import android.example.findmyfriends.application.App
 import android.example.findmyfriends.databinding.ActivityMapsBinding
 import android.example.findmyfriends.viewmodel.mappresenter.MapPresenter
 import android.os.Bundle
@@ -29,7 +29,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, MapView {
         binding = ActivityMapsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        (application as FindMyFriendsApplication).findMyFriendsComponent.inject(this)
+        (application as App).appComponent.inject(this)
 
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)

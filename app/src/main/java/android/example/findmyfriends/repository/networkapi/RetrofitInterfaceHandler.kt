@@ -3,10 +3,10 @@ package android.example.findmyfriends.repository.networkapi
 import android.example.findmyfriends.model.local.isDbCreated
 import android.example.findmyfriends.model.local.miscURL
 import android.example.findmyfriends.model.local.requestFriendsVK
-import android.example.findmyfriends.model.remote.database.dao.UserInfoDao
 import android.example.findmyfriends.model.remote.database.entity.UserInfo
 import android.example.findmyfriends.model.remote.vk.friendsinfo.GetVkFriendsData
 import android.example.findmyfriends.model.remote.vk.retrofitservice.VkFriendsService
+import android.example.findmyfriends.repository.database.DataBaseInterfaceHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -16,13 +16,7 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import javax.inject.Inject
 
-class RetrofitInterfaceHandler : RetrofitInterface {
-
-    @Inject
-    lateinit var retrofit: Retrofit
-
-    @Inject
-    lateinit var usersDao: UserInfoDao
+class RetrofitInterfaceHandler @Inject constructor(val retrofit: Retrofit, val usersDao: DataBaseInterfaceHandler) : RetrofitInterface {
 
     private lateinit var requestRetrofit: String
     private lateinit var service : VkFriendsService
@@ -55,7 +49,7 @@ class RetrofitInterfaceHandler : RetrofitInterface {
                             photo_100 = result.items[i].photo_100!!
                         )
                         GlobalScope.launch(Dispatchers.IO) {
-                            usersDao.insertUserInfo(user)
+                            usersDao.insertToDataBase(user)
                         }
                     }
                 }

@@ -5,16 +5,16 @@ import android.example.findmyfriends.di.components.AppComponent
 import android.example.findmyfriends.di.modules.AppModule
 import android.example.findmyfriends.di.components.DaggerAppComponent
 
-open class FindMyFriendsApplication : Application() {
+open class App : Application() {
 
-    lateinit var findMyFriendsComponent: AppComponent
+    lateinit var appComponent: AppComponent
 
     override fun onCreate() {
         super.onCreate()
-        findMyFriendsComponent = initDagger(this)
+        appComponent = initDagger(this)
     }
 
-    private fun initDagger(app: FindMyFriendsApplication) : AppComponent =
+    private fun initDagger(app: App) : AppComponent =
         DaggerAppComponent.builder()
             .appModule(AppModule(app))
             .build()

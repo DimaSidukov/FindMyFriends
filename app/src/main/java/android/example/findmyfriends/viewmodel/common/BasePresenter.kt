@@ -1,7 +1,6 @@
 package android.example.findmyfriends.viewmodel.common
 
 import android.content.Context
-import android.example.findmyfriends.application.FindMyFriendsApplication
 import android.example.findmyfriends.model.local.locData
 import android.example.findmyfriends.model.local.miscURL
 import android.example.findmyfriends.model.local.requestFriendsVK
@@ -12,7 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import moxy.MvpPresenter
 import javax.inject.Inject
 
-open class BasePresenter<view: BaseView> @Inject constructor (private val context: Context) : MvpPresenter<view>() {
+open class BasePresenter<view: BaseView> @Inject constructor (val context: Context) : MvpPresenter<view>() {
 
     fun accessVKToken() = vkAccessToken
     fun accessCurrentToken() = vkAccessToken

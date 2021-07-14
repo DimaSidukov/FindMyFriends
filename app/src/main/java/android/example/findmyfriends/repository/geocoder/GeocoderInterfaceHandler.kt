@@ -3,12 +3,10 @@ package android.example.findmyfriends.repository.geocoder
 import android.example.findmyfriends.model.remote.database.entity.UserInfo
 import android.example.findmyfriends.model.remote.geodata.UserLocationData
 import android.location.Geocoder
+import java.util.*
 import javax.inject.Inject
 
-class GeocoderInterfaceHandler : GeocoderInterface {
-
-    @Inject
-    lateinit var geocoder: Geocoder
+class GeocoderInterfaceHandler @Inject constructor(val geocoder: Geocoder) : GeocoderInterface {
 
     override fun buildList(users: List<UserInfo>): MutableList<UserLocationData> {
 

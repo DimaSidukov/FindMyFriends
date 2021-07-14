@@ -20,3 +20,6 @@ Mark your VK friends' cities location on map
 
 Требования по заданию:
 * Moxy работает немного неправильно
+
+
+Поставлять local n remote данные в repository как [тут](https://github.com/KostiaLeo/moxy-dagger2-rxjava), затем вызывать репозиторий в презентере

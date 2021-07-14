@@ -1,6 +1,7 @@
 package android.example.findmyfriends.di.modules
 
 import android.example.findmyfriends.model.local.VK_FRIENDS_URL
+import android.example.findmyfriends.repository.database.DataBaseInterfaceHandler
 import android.example.findmyfriends.repository.networkapi.RetrofitInterfaceHandler
 import dagger.Module
 import dagger.Provides
@@ -27,8 +28,4 @@ class NetworkModule {
             .baseUrl(url)
             .addConverterFactory(MoshiConverterFactory.create())
             .build()
-
-    @Provides
-    @Singleton
-    fun provideRetrofitHandler() : RetrofitInterfaceHandler = RetrofitInterfaceHandler()
 }

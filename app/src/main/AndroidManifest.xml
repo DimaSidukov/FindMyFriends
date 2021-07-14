@@ -14,7 +14,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.FindMyFriends"
-        android:name=".application.FindMyFriendsApplication">
+        android:name=".application.App">
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"

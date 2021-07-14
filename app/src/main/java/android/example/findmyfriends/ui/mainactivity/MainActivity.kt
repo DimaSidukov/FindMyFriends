@@ -2,7 +2,7 @@ package android.example.findmyfriends.ui.mainactivity
 
 import android.content.Intent
 import android.example.findmyfriends.R
-import android.example.findmyfriends.application.FindMyFriendsApplication
+import android.example.findmyfriends.application.App
 import android.example.findmyfriends.ui.friendsactivity.FriendListActivity
 import android.example.findmyfriends.viewmodel.mainpresenter.MainPresenter
 import android.os.Bundle
@@ -27,7 +27,7 @@ class MainActivity : AppCompatActivity(), MainView {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        (application as FindMyFriendsApplication).findMyFriendsComponent.inject(this)
+        (application as App).appComponent.inject(this)
 
         val loginButton = findViewById<Button>(R.id.login_vk_button)
 

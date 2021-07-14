@@ -19,16 +19,10 @@ import moxy.InjectViewState
 import javax.inject.Inject
 
 @InjectViewState
-class FriendsPresenter @Inject constructor (context: Context) : BasePresenter<FriendsView>(context) {
-
-    @Inject
-    lateinit var dbHandler : DataBaseInterfaceHandler
-
-    @Inject
-    lateinit var retrofitHandler: RetrofitInterfaceHandler
-
-    @Inject
-    lateinit var geocoder: GeocoderInterfaceHandler
+class FriendsPresenter @Inject constructor(context: Context,
+                                           val dbHandler : DataBaseInterfaceHandler,
+                                           val retrofitHandler: RetrofitInterfaceHandler,
+                                           val geocoder: GeocoderInterfaceHandler) : BasePresenter<FriendsView>(context) {
 
     fun onViewAttach() {
         super.onFirstViewAttach()

@@ -6,10 +6,7 @@ import android.example.findmyfriends.model.remote.database.entity.UserInfo
 import kotlinx.coroutines.coroutineScope
 import javax.inject.Inject
 
-class DataBaseInterfaceHandler : DataBaseInterface {
-
-    @Inject
-    lateinit var usersDao: UserInfoDao
+class DataBaseInterfaceHandler @Inject constructor(val usersDao: UserInfoDao) : DataBaseInterface {
 
     override suspend fun insertToDataBase(user: UserInfo) = coroutineScope {
             usersDao.insertUserInfo(user)
