@@ -1,8 +1,7 @@
 package android.example.findmyfriends.di.modules
 
-import android.example.findmyfriends.model.local.VK_FRIENDS_URL
-import android.example.findmyfriends.repository.database.DataBaseInterfaceHandler
-import android.example.findmyfriends.repository.networkapi.RetrofitInterfaceHandler
+import android.content.Context
+import android.example.findmyfriends.model.local.plain.VK_FRIENDS_URL
 import dagger.Module
 import dagger.Provides
 import retrofit2.Retrofit

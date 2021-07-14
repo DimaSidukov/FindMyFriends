@@ -1,14 +1,12 @@
 package android.example.findmyfriends.viewmodel.friendspresenter
 
 import android.content.Context
-import android.example.findmyfriends.model.local.locData
-import android.example.findmyfriends.model.local.textViewText
-import android.example.findmyfriends.model.local.userList
-import android.example.findmyfriends.model.remote.database.entity.UserInfo
+import android.example.findmyfriends.model.local.plain.locData
+import android.example.findmyfriends.model.local.plain.textViewText
+import android.example.findmyfriends.model.local.plain.userList
+import android.example.findmyfriends.model.local.database.entity.UserInfo
 import android.example.findmyfriends.model.remote.geodata.UserLocationData
-import android.example.findmyfriends.repository.database.DataBaseInterfaceHandler
-import android.example.findmyfriends.repository.geocoder.GeocoderInterfaceHandler
-import android.example.findmyfriends.repository.networkapi.RetrofitInterfaceHandler
+import android.example.findmyfriends.repository.Repository
 import android.example.findmyfriends.ui.friendsactivity.FriendsView
 import android.example.findmyfriends.viewmodel.common.BasePresenter
 import android.util.SparseBooleanArray
@@ -19,10 +17,7 @@ import moxy.InjectViewState
 import javax.inject.Inject
 
 @InjectViewState
-class FriendsPresenter @Inject constructor(context: Context,
-                                           val dbHandler : DataBaseInterfaceHandler,
-                                           val retrofitHandler: RetrofitInterfaceHandler,
-                                           val geocoder: GeocoderInterfaceHandler) : BasePresenter<FriendsView>(context) {
+class FriendsPresenter @Inject constructor(context: Context, private val repository : Repository) : BasePresenter<FriendsView>(context) {
 
     fun onViewAttach() {
         super.onFirstViewAttach()
@@ -33,12 +28,12 @@ class FriendsPresenter @Inject constructor(context: Context,
     }
 
     fun getDataFromVk(token: String) : Boolean {
-        return retrofitHandler.runRetrofit(token)
+        return repository.downloadData(token)
     }
 
     private fun setUserList() {
         GlobalScope.launch(Dispatchers.IO) {
-            userList = dbHandler.getFromDataBase()
+            userList = repository.retrieveData()
         }
     }
 
@@ -49,9 +44,8 @@ class FriendsPresenter @Inject constructor(context: Context,
 
     fun clearData() {
         GlobalScope.launch {
-            dbHandler.deleteDataBase()
+            repository.clearData()
         }
-        userList = listOf()
     }
 
     fun updateList(s: String, initialList: List<UserInfo>): MutableList<UserInfo> {
@@ -92,5 +86,5 @@ class FriendsPresenter @Inject constructor(context: Context,
     }
 
     private fun getCoordinatesByLocation(users: List<UserInfo>):
-            MutableList<UserLocationData> = geocoder.buildList(users)
+            MutableList<UserLocationData> = repository.loadMapData(users)
 }

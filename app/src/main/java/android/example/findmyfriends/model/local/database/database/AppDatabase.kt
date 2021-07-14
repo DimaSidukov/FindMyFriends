@@ -1,8 +1,8 @@
-package android.example.findmyfriends.model.remote.database.database
+package android.example.findmyfriends.model.local.database.database
 
 import android.content.Context
-import android.example.findmyfriends.model.remote.database.dao.UserInfoDao
-import android.example.findmyfriends.model.remote.database.entity.UserInfo
+import android.example.findmyfriends.model.local.database.dao.UserInfoDao
+import android.example.findmyfriends.model.local.database.entity.UserInfo
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase

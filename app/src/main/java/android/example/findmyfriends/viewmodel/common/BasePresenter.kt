@@ -1,10 +1,10 @@
 package android.example.findmyfriends.viewmodel.common
 
 import android.content.Context
-import android.example.findmyfriends.model.local.locData
-import android.example.findmyfriends.model.local.miscURL
-import android.example.findmyfriends.model.local.requestFriendsVK
-import android.example.findmyfriends.model.local.vkAccessToken
+import android.example.findmyfriends.model.local.plain.locData
+import android.example.findmyfriends.model.local.plain.miscURL
+import android.example.findmyfriends.model.local.plain.requestFriendsVK
+import android.example.findmyfriends.model.local.plain.vkAccessToken
 import android.example.findmyfriends.ui.common.BaseView
 import android.net.ConnectivityManager
 import androidx.appcompat.app.AppCompatActivity

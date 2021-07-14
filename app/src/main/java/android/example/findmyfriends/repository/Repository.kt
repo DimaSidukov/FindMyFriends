@@ -1,40 +1,32 @@
-package android.example.findmyfriends.repository.networkapi
+package android.example.findmyfriends.repository
 
-import android.example.findmyfriends.model.local.isDbCreated
-import android.example.findmyfriends.model.local.miscURL
-import android.example.findmyfriends.model.local.requestFriendsVK
-import android.example.findmyfriends.model.remote.database.entity.UserInfo
+import android.example.findmyfriends.model.local.database.entity.UserInfo
+import android.example.findmyfriends.model.local.plain.isDbCreated
+import android.example.findmyfriends.model.local.source.LocalSource
+import android.example.findmyfriends.model.remote.source.RemoteSource
 import android.example.findmyfriends.model.remote.vk.friendsinfo.GetVkFriendsData
-import android.example.findmyfriends.model.remote.vk.retrofitservice.VkFriendsService
-import android.example.findmyfriends.repository.database.DataBaseInterfaceHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import retrofit2.Retrofit
 import javax.inject.Inject
 
-class RetrofitInterfaceHandler @Inject constructor(val retrofit: Retrofit, val usersDao: DataBaseInterfaceHandler) : RetrofitInterface {
+class Repository @Inject constructor(private val localSource: LocalSource, private val remoteSource: RemoteSource) : RepositoryInterface {
 
-    private lateinit var requestRetrofit: String
-    private lateinit var service : VkFriendsService
+    suspend fun retrieveData() = localSource.retrieveData()
 
-    override fun setRequest(token: String) {
-        requestRetrofit = requestFriendsVK + token + miscURL
-    }
+    fun clearData() = localSource.clearData()
 
-    override fun createService() {
-        service = retrofit.create(VkFriendsService::class.java)
-    }
+    fun loadMapData(users: List<UserInfo>) = remoteSource.loadMapData(users)
 
-    override fun runRetrofit(token: String) : Boolean {
+    override fun downloadData(token: String) : Boolean {
 
-        setRequest(token)
-        createService()
+        remoteSource.setRequest(token)
+        remoteSource.createService()
 
-        service.getFriendList(requestRetrofit).enqueue(object : Callback<GetVkFriendsData> {
+        remoteSource.service.getFriendList(remoteSource.requestRetrofit).enqueue(object : Callback<GetVkFriendsData> {
             override fun onResponse(call: Call<GetVkFriendsData>, response: Response<GetVkFriendsData>) {
 
                 val result = response.body()?.response!!
@@ -49,7 +41,7 @@ class RetrofitInterfaceHandler @Inject constructor(val retrofit: Retrofit, val u
                             photo_100 = result.items[i].photo_100!!
                         )
                         GlobalScope.launch(Dispatchers.IO) {
-                            usersDao.insertToDataBase(user)
+                            localSource.loadData(user)
                         }
                     }
                 }
@@ -64,5 +56,6 @@ class RetrofitInterfaceHandler @Inject constructor(val retrofit: Retrofit, val u
 
         return isDbCreated
     }
+
 
 }

@@ -1,7 +1,7 @@
 package android.example.findmyfriends.viewmodel.mainpresenter
 
 import android.content.Context
-import android.example.findmyfriends.model.local.setToken
+import android.example.findmyfriends.model.local.plain.setToken
 import android.example.findmyfriends.ui.mainactivity.MainView
 import android.example.findmyfriends.viewmodel.common.BasePresenter
 import moxy.InjectViewState

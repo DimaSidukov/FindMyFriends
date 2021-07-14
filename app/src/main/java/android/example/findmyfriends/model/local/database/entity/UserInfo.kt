@@ -1,4 +1,4 @@
-package android.example.findmyfriends.model.remote.database.entity
+package android.example.findmyfriends.model.local.database.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

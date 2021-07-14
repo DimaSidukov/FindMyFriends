@@ -24,10 +24,11 @@ class MainActivity : AppCompatActivity(), MainView {
     private val falseToken = "token"
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
+        App.appComponent.inject(this)
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-        (application as App).appComponent.inject(this)
 
         val loginButton = findViewById<Button>(R.id.login_vk_button)
 

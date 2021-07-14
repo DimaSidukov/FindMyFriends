@@ -1,15 +1,28 @@
-package android.example.findmyfriends.repository.geocoder
+package android.example.findmyfriends.model.remote.source
 
-import android.example.findmyfriends.model.remote.database.entity.UserInfo
+import android.example.findmyfriends.model.local.database.entity.UserInfo
+import android.example.findmyfriends.model.local.plain.miscURL
+import android.example.findmyfriends.model.local.plain.requestFriendsVK
 import android.example.findmyfriends.model.remote.geodata.UserLocationData
+import android.example.findmyfriends.model.remote.vk.retrofitservice.VkFriendsService
 import android.location.Geocoder
-import java.util.*
+import retrofit2.Retrofit
 import javax.inject.Inject
 
-class GeocoderInterfaceHandler @Inject constructor(val geocoder: Geocoder) : GeocoderInterface {
+class RemoteSource @Inject constructor(private val retrofit: Retrofit, private val geocoder: Geocoder) : RemoteSourceInterface {
 
-    override fun buildList(users: List<UserInfo>): MutableList<UserLocationData> {
+    lateinit var requestRetrofit: String
+    lateinit var service : VkFriendsService
 
+    override fun setRequest(token: String) {
+        requestRetrofit = requestFriendsVK + token + miscURL
+    }
+
+    override fun createService() {
+        service = retrofit.create(VkFriendsService::class.java)
+    }
+
+    override fun loadMapData(users: List<UserInfo>) : MutableList<UserLocationData> {
         val listOfLocations = mutableListOf<UserLocationData>()
         val repetitiveCities = mutableListOf<String>()
 
@@ -32,5 +45,4 @@ class GeocoderInterfaceHandler @Inject constructor(val geocoder: Geocoder) : Geo
 
         return listOfLocations
     }
-
 }

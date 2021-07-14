@@ -1,6 +1,6 @@
-package android.example.findmyfriends.model.local
+package android.example.findmyfriends.model.local.plain
 
-import android.example.findmyfriends.model.remote.database.entity.UserInfo
+import android.example.findmyfriends.model.local.database.entity.UserInfo
 import android.example.findmyfriends.model.remote.geodata.UserLocationData
 import android.util.SparseBooleanArray
 

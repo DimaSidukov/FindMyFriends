@@ -1,15 +1,14 @@
 package android.example.findmyfriends.di.modules
 
-import android.app.Application
 import android.content.Context
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton
 
 @Module
-class AppModule(private val app: Application) {
+class ContextModule(val context: Context) {
 
     @Provides
     @Singleton
-    fun provideContext() : Context = app
+    fun provideContext(): Context = context
 }

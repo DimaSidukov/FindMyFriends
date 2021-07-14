@@ -1,8 +1,7 @@
 package android.example.findmyfriends.viewmodel.friendspresenter.friendsadapter
 
 import android.example.findmyfriends.R
-import android.example.findmyfriends.model.local.allItemsSelectedState
-import android.example.findmyfriends.model.remote.database.entity.UserInfo
+import android.example.findmyfriends.model.local.database.entity.UserInfo
 import android.util.SparseBooleanArray
 import android.view.LayoutInflater
 import android.view.View
