@@ -13,7 +13,7 @@ var miscURL: String = "&order=name&fields=city,domain,photo_100%20&&v=5.131"
 
 var locData : List<UserLocationData> = listOf()
 
-var isDbCreated = false
+var isDbCreated = true
 
 lateinit var array: SparseBooleanArray
 var allItemsSelectedState = false

@@ -25,9 +25,6 @@ import moxy.presenter.ProvidePresenter
 import java.util.*
 import javax.inject.Inject
 
-//strictly restrain data from presenter, so presenter has to get all the data from database
-//or local data store
-
 class FriendListActivity : MvpAppCompatActivity(), FriendsView {
 
     @Inject

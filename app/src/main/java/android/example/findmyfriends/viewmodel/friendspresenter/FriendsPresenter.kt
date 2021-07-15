@@ -10,11 +10,10 @@ import android.example.findmyfriends.repository.Repository
 import android.example.findmyfriends.ui.friendsactivity.FriendsView
 import android.example.findmyfriends.viewmodel.common.BasePresenter
 import android.util.SparseBooleanArray
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import moxy.InjectViewState
 import javax.inject.Inject
+import kotlin.properties.Delegates
 
 @InjectViewState
 class FriendsPresenter @Inject constructor(context: Context, private val repository : Repository) : BasePresenter<FriendsView>(context) {
@@ -32,7 +31,7 @@ class FriendsPresenter @Inject constructor(context: Context, private val reposit
     }
 
     private fun setUserList() {
-        GlobalScope.launch(Dispatchers.IO) {
+        runBlocking {
             userList = repository.retrieveData()
         }
     }

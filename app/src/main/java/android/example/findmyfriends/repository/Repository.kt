@@ -5,9 +5,7 @@ import android.example.findmyfriends.model.local.plain.isDbCreated
 import android.example.findmyfriends.model.local.source.LocalSource
 import android.example.findmyfriends.model.remote.source.RemoteSource
 import android.example.findmyfriends.model.remote.vk.friendsinfo.GetVkFriendsData
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -25,7 +23,6 @@ class Repository @Inject constructor(private val localSource: LocalSource, priva
 
         remoteSource.setRequest(token)
         remoteSource.createService()
-
         remoteSource.service.getFriendList(remoteSource.requestRetrofit).enqueue(object : Callback<GetVkFriendsData> {
             override fun onResponse(call: Call<GetVkFriendsData>, response: Response<GetVkFriendsData>) {
 
@@ -40,12 +37,11 @@ class Repository @Inject constructor(private val localSource: LocalSource, priva
                             city = result.items[i].city?.title!!,
                             photo_100 = result.items[i].photo_100!!
                         )
-                        GlobalScope.launch(Dispatchers.IO) {
+                        runBlocking {
                             localSource.loadData(user)
                         }
                     }
                 }
-
                 isDbCreated = true
             }
 
