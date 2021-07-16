@@ -1,6 +1,6 @@
-package android.example.findmyfriends.ui.mapsactivity
+package android.example.findmyfriends.view.mapsactivity
 
-import android.example.findmyfriends.ui.common.BaseView
+import android.example.findmyfriends.view.common.BaseView
 import moxy.viewstate.strategy.OneExecutionStateStrategy
 import moxy.viewstate.strategy.StateStrategyType
 

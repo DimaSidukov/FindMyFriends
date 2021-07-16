@@ -1,27 +1,30 @@
-package android.example.findmyfriends.ui.mainactivity
+package android.example.findmyfriends.view.mainactivity
 
 import android.content.Intent
 import android.example.findmyfriends.R
 import android.example.findmyfriends.application.App
-import android.example.findmyfriends.ui.friendsactivity.FriendListActivity
-import android.example.findmyfriends.viewmodel.mainpresenter.MainPresenter
+import android.example.findmyfriends.view.friendsactivity.FriendListActivity
 import android.os.Bundle
 import android.widget.Button
-import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import com.vk.api.sdk.VK
 import com.vk.api.sdk.auth.VKAccessToken
 import com.vk.api.sdk.auth.VKAuthCallback
-import com.vk.api.sdk.auth.VKScope
+import moxy.MvpAppCompatActivity
+import moxy.presenter.InjectPresenter
+import moxy.presenter.ProvidePresenter
 import javax.inject.Inject
 
 
-class MainActivity : AppCompatActivity(), MainView {
+class MainActivity : MvpAppCompatActivity() , BaseActivity {
 
     @Inject
-    lateinit var presenter : MainPresenter
+    @InjectPresenter
+    lateinit var presenter: MainPresenter
 
-    private val falseToken = "token"
+    @ProvidePresenter
+    fun providePresenter(): MainPresenter = presenter
+
+    private var token = "token"
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -33,19 +36,10 @@ class MainActivity : AppCompatActivity(), MainView {
         val loginButton = findViewById<Button>(R.id.login_vk_button)
 
         loginButton.setOnClickListener {
-            if(presenter.isNetworkAvailable()) {
-                if(presenter.verifyVkToken(falseToken)) {
-                    startNewActivity()
-                }
-                else {
-                    VK.login(this, listOf(VKScope.FRIENDS))
-                }
-            }
+            if (presenter.login(token))
+                startNewActivity()
             else {
-                if(presenter.verifyVkToken(falseToken)) {
-                    startNewActivity()
-                }
-                else makeToast("Проверьте подключение к интернету")
+                makeToast("Проверьте подключение к интернету")
             }
         }
     }
@@ -54,7 +48,7 @@ class MainActivity : AppCompatActivity(), MainView {
 
         val callback = object : VKAuthCallback {
                 override fun onLogin(token: VKAccessToken) {
-                    presenter.setVkToken(token.accessToken)
+                    this@MainActivity.token = token.accessToken
                     startNewActivity()
                 }
 
@@ -69,13 +63,13 @@ class MainActivity : AppCompatActivity(), MainView {
         }
     }
 
-    override fun makeToast(message: String) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
-    }
+//    override fun makeToast(message: String) {
+//        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+//    }
 
     private fun startNewActivity() {
         val friendListIntent = Intent(this, FriendListActivity::class.java)
-        friendListIntent.putExtra(presenter.accessVKToken(), presenter.accessVKToken())
+        friendListIntent.putExtra("vk token", token)
         startActivity(friendListIntent)
     }
 }

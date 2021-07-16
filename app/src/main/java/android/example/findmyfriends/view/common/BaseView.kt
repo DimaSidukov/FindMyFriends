@@ -1,4 +1,4 @@
-package android.example.findmyfriends.ui.common
+package android.example.findmyfriends.view.common
 
 import moxy.MvpView
 import moxy.viewstate.strategy.OneExecutionStateStrategy

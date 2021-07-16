@@ -1,22 +1,11 @@
 package android.example.findmyfriends.model.local.source
 
-import android.example.findmyfriends.model.local.database.dao.UserInfoDao
-import android.example.findmyfriends.model.local.database.database.AppDatabase
-import android.example.findmyfriends.model.local.database.entity.UserInfo
-import android.example.findmyfriends.model.local.plain.userList
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.withContext
-import javax.inject.Inject
+import android.example.findmyfriends.data.database.entity.UserInfo
 
-class LocalSource @Inject constructor(val usersDao: UserInfoDao) : LocalSourceInterface {
+interface LocalSource {
 
-    override suspend fun loadData(user: UserInfo) =  usersDao.insertUserInfo(user)
-
-    override suspend fun retrieveData() : List<UserInfo> = usersDao.getAllUsers()
-
-    override fun clearData() {
-        AppDatabase.destroyDataBase()
-        userList = listOf()
-    }
+    suspend fun loadData(user: UserInfo)
+    suspend fun loadAllData(users: List<UserInfo>)
+    suspend fun retrieveData() : List<UserInfo>
+    fun clearData()
 }

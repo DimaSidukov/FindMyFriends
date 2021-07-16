@@ -1,13 +1,12 @@
-package android.example.findmyfriends.ui.friendsactivity
+package android.example.findmyfriends.view.friendsactivity
 
 import android.content.Intent
 import android.example.findmyfriends.R
 import android.example.findmyfriends.application.App
-import android.example.findmyfriends.model.local.plain.allItemsSelectedState
-import android.example.findmyfriends.model.local.plain.array
-import android.example.findmyfriends.ui.mapsactivity.MapsActivity
-import android.example.findmyfriends.viewmodel.friendspresenter.FriendsPresenter
-import android.example.findmyfriends.viewmodel.friendspresenter.friendsadapter.VkFriendListAdapter
+import android.example.findmyfriends.data.database.entity.UserInfo
+import android.example.findmyfriends.model.remote.geodata.UserLocationData
+import android.example.findmyfriends.view.mapsactivity.MapsActivity
+import android.example.findmyfriends.view.friendsactivity.friendsadapter.VkFriendListAdapter
 import android.os.Bundle
 import android.view.View
 import android.view.WindowManager
@@ -19,6 +18,7 @@ import androidx.core.widget.doAfterTextChanged
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import kotlinx.coroutines.*
 import moxy.MvpAppCompatActivity
 import moxy.presenter.InjectPresenter
 import moxy.presenter.ProvidePresenter
@@ -56,8 +56,10 @@ class FriendListActivity : MvpAppCompatActivity(), FriendsView {
 
         initializeElements()
 
-        if(!presenter.getDataFromVk(token))
-            makeToast("Не удалось загрузить данные")
+        GlobalScope.launch {
+            if(!presenter.getDataFromVk(token))
+                makeToast("Не удалось загрузить данные")
+        }
 
         buildRecyclerView()
 
@@ -78,8 +80,9 @@ class FriendListActivity : MvpAppCompatActivity(), FriendsView {
             if (!presenter.isNetworkAvailable()) {
                 makeToast("Проверьте подключение к интернету!")
             } else {
-                presenter.openMapHandler(vkAdapter.getChecked(), vkAdapter.getList())
+                val arrayOfCities = presenter.openMapHandler(vkAdapter.getChecked(), vkAdapter.getList())
                 val mapIntent = Intent(this@FriendListActivity, MapsActivity::class.java)
+                mapIntent.putExtra("arrayOfCities", arrayOfCities)
                 startActivity(mapIntent)
             }
 
@@ -103,7 +106,9 @@ class FriendListActivity : MvpAppCompatActivity(), FriendsView {
     }
 
     override fun finishAndRemoveTask() {
-        presenter.clearData()
+        GlobalScope.launch {
+            presenter.clearData()
+        }
         super.finishAndRemoveTask()
     }
 
@@ -112,12 +117,15 @@ class FriendListActivity : MvpAppCompatActivity(), FriendsView {
         selectAllButton = findViewById(R.id.pick_all)
         openMapButton = findViewById(R.id.open_map_button)
         progressBar = findViewById(R.id.progress_bar)
-        token = intent.getStringExtra(presenter.accessCurrentToken()).toString()
+        token = intent.getStringExtra("vk token").toString()
     }
 
     private fun buildRecyclerView() {
 
-        val list = presenter.accessUserList()
+        var list = mutableListOf<UserInfo>()
+        GlobalScope.launch {
+            list = presenter.accessUserList() as MutableList<UserInfo>
+        }
         recyclerView = findViewById(R.id.list_view)
         vkAdapter = VkFriendListAdapter(list, list, openMapButton)
         recyclerView.layoutManager = LinearLayoutManager(this@FriendListActivity)
@@ -127,21 +135,21 @@ class FriendListActivity : MvpAppCompatActivity(), FriendsView {
 
     private fun setChecksBeforeDestruction() {
         try {
-            vkAdapter.setChecked(array)
+            vkAdapter.setChecked(presenter.allCheckBoxesArray)
             vkAdapter.notifyDataSetChanged()
         } catch (e: Exception) { }
     }
 
     private fun setItemsState() {
-        allItemsSelectedState = vkAdapter.getItemsState()
+        presenter.adapterSelectedItemsState = vkAdapter.getItemsState()
     }
 
     private fun setArrayOfChecked() {
-        array = vkAdapter.getChecked()
+        presenter.allCheckBoxesArray = vkAdapter.getChecked()
     }
 
     private fun setItemsStateBeforeDestruction() {
-        vkAdapter.setItemState(allItemsSelectedState)
+        vkAdapter.setItemState( presenter.adapterSelectedItemsState)
     }
 
     override fun onSupportNavigateUp(): Boolean {
@@ -150,7 +158,7 @@ class FriendListActivity : MvpAppCompatActivity(), FriendsView {
     }
 
     override fun showText(message: String?) {
-        editText.setText(presenter.getText())
+        editText.setText(presenter.editTextText)
     }
 
     override fun setButtonState() {

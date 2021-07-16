@@ -1,7 +1,7 @@
-package android.example.findmyfriends.viewmodel.friendspresenter.friendsadapter
+package android.example.findmyfriends.view.friendsactivity.friendsadapter
 
 import android.example.findmyfriends.R
-import android.example.findmyfriends.model.local.database.entity.UserInfo
+import android.example.findmyfriends.data.database.entity.UserInfo
 import android.util.SparseBooleanArray
 import android.view.LayoutInflater
 import android.view.View

@@ -1,13 +1,15 @@
-package android.example.findmyfriends.model.local.database.dao
+package android.example.findmyfriends.data.database.dao
 
-import android.example.findmyfriends.model.local.database.entity.UserInfo
-import androidx.lifecycle.LiveData
+import android.example.findmyfriends.data.database.entity.UserInfo
 import androidx.room.*
 
 @Dao
 interface UserInfoDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertUserInfo(userInfo: UserInfo)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAllUsers(users: List<UserInfo>)
 
     @Update
     suspend fun updateUserInfo(userInfo: UserInfo)

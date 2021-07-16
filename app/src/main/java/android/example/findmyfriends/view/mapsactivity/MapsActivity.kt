@@ -1,9 +1,9 @@
-package android.example.findmyfriends.ui.mapsactivity
+package android.example.findmyfriends.view.mapsactivity
 
 import android.example.findmyfriends.R
 import android.example.findmyfriends.application.App
 import android.example.findmyfriends.databinding.ActivityMapsBinding
-import android.example.findmyfriends.viewmodel.mappresenter.MapPresenter
+import android.example.findmyfriends.model.remote.geodata.UserLocationData
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -38,10 +38,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, MapView {
 
     override fun onMapReady(googleMap: GoogleMap) {
 
+        val array = intent.getParcelableArrayListExtra<UserLocationData>("arrayOfCities")
+
         map = googleMap
 
         map.setOnMapLoadedCallback {
-            presenter.showOneTheMap(map)
+            presenter.showOneTheMap(map, array!!)
         }
         map.animateCamera(CameraUpdateFactory.zoomTo(5.0f))
     }
