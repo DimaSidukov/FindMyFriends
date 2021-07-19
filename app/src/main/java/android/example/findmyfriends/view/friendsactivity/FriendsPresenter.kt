@@ -1,10 +1,12 @@
 package android.example.findmyfriends.view.friendsactivity
 
 import android.content.Context
+import android.content.Intent
 import android.example.findmyfriends.data.database.entity.UserInfo
 import android.example.findmyfriends.model.remote.geodata.UserLocationData
 import android.example.findmyfriends.repository.RepositoryImpl
 import android.example.findmyfriends.view.common.BasePresenter
+import android.example.findmyfriends.view.mapsactivity.MapsActivity
 import android.util.SparseBooleanArray
 import kotlinx.coroutines.*
 import moxy.InjectViewState
@@ -25,9 +27,7 @@ class FriendsPresenter @Inject constructor(context: Context, private val reposit
         viewState.setItemsFlagState()
     }
 
-    suspend fun getDataFromVk(token: String) : Boolean = GlobalScope.async {
-        return@async repositoryImpl.downloadData(token)
-    }.await()
+    suspend fun getDataFromVk(token: String) : Boolean = repositoryImpl.downloadData(token)
 
     private suspend fun setUserList(): List<UserInfo> {
         return repositoryImpl.retrieveData()
@@ -47,6 +47,14 @@ class FriendsPresenter @Inject constructor(context: Context, private val reposit
             }
         }
         return updated
+    }
+
+    fun openMapHandler() {
+        if (isNetworkAvailable()) {
+            viewState.makeToast("Проверьте подключение к интернету!")
+        } else {
+            viewState.startActivity()
+        }
     }
 
     fun openMapHandler(list: SparseBooleanArray, inputList: List<UserInfo>) : ArrayList<UserLocationData> {

@@ -1,12 +1,11 @@
 package android.example.findmyfriends.model.remote.source
 
 import android.example.findmyfriends.data.database.entity.UserInfo
-import android.example.findmyfriends.model.local.plain.miscURL
-import android.example.findmyfriends.model.local.plain.requestFriendsVK
 import android.example.findmyfriends.model.remote.geodata.UserLocationData
 import android.example.findmyfriends.model.remote.vk.friendsinfo.GetVkFriendsData
 import android.example.findmyfriends.model.remote.vk.retrofitservice.VkFriendsService
 import android.location.Geocoder
+import android.util.Log
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -15,25 +14,28 @@ import javax.inject.Inject
 
 class RemoteSourceImpl @Inject constructor(private val retrofit: Retrofit, private val geocoder: Geocoder) : RemoteSource {
 
-    lateinit var requestRetrofit: String
-    lateinit var service : VkFriendsService
+    private lateinit var requestRetrofit: String
+    private lateinit var service : VkFriendsService
+
+    private val requestFriendsVK: String = "friends.get?access_token="
+    private val miscURL: String = "&order=name&fields=city,domain,photo_100%20&&v=5.131"
 
     private fun setRequest(token: String) {
         requestRetrofit = requestFriendsVK + token + miscURL
+        Log.d("token", token)
     }
 
     private fun createService() {
         service = retrofit.create(VkFriendsService::class.java)
     }
 
-    override fun getResponse(token: String, url: String): List<UserInfo> {
+    override fun getResponse(token: String): List<UserInfo> {
 
         setRequest(token)
         createService()
 
         val userInfoList = mutableListOf<UserInfo>()
-        val call = service.getFriendList(url)
-        call.enqueue(object : Callback<GetVkFriendsData> {
+        service.getFriendList(requestFriendsVK).enqueue(object : Callback<GetVkFriendsData> {
             override fun onResponse(call: Call<GetVkFriendsData>, response: Response<GetVkFriendsData>) {
                 val result = response.body()?.response!!
 

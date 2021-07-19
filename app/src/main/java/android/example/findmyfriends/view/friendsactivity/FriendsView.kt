@@ -16,4 +16,6 @@ interface FriendsView : BaseView {
 
     @AddToEndSingle
     fun setItemsFlagState()
+
+    fun startActivity()
 }

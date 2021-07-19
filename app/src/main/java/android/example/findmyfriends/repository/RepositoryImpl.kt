@@ -15,7 +15,7 @@ class RepositoryImpl @Inject constructor(private val localSource: LocalSourceImp
 
     override suspend fun downloadData(token: String) : Boolean {
 
-        val responseList = remoteSource.getResponse(token, remoteSource.requestRetrofit)
+        val responseList = remoteSource.getResponse(token)
         return if (responseList.isEmpty()) false
         else {
             localSource.loadAllData(responseList)

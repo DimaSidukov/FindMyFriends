@@ -4,16 +4,16 @@ import android.example.findmyfriends.R
 import android.example.findmyfriends.application.App
 import android.example.findmyfriends.databinding.ActivityMapsBinding
 import android.example.findmyfriends.model.remote.geodata.UserLocationData
+import android.example.findmyfriends.view.common.BaseActivity
 import android.os.Bundle
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import javax.inject.Inject
 
-class MapsActivity : AppCompatActivity(), OnMapReadyCallback, MapView {
+class MapsActivity : BaseActivity(), OnMapReadyCallback, MapView {
 
     private lateinit var map: GoogleMap
     private lateinit var binding: ActivityMapsBinding
@@ -38,7 +38,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, MapView {
 
     override fun onMapReady(googleMap: GoogleMap) {
 
-        val array = intent.getParcelableArrayListExtra<UserLocationData>("arrayOfCities")
+        val bundle = intent.extras
+        val array = bundle?.getParcelableArrayList<UserLocationData>("arrayOfCities")
 
         map = googleMap
 

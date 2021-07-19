@@ -1,7 +1,5 @@
 package android.example.findmyfriends.di.modules
 
-import android.content.Context
-import android.example.findmyfriends.model.local.plain.VK_FRIENDS_URL
 import dagger.Module
 import dagger.Provides
 import retrofit2.Retrofit
@@ -13,12 +11,12 @@ import javax.inject.Singleton
 class NetworkModule {
 
     companion object {
-        private const val BASE_URL = VK_FRIENDS_URL
+        private const val BASE_URL = "https://api.vk.com/method/"
     }
 
     @Provides
     @Named(BASE_URL)
-    fun provideBaseURL() = VK_FRIENDS_URL
+    fun provideBaseURL() = "https://api.vk.com/method/"
 
     @Provides
     @Singleton

@@ -1,21 +1,22 @@
 package android.example.findmyfriends.view.mainactivity
 
+import android.app.Activity
 import android.content.Intent
 import android.example.findmyfriends.R
 import android.example.findmyfriends.application.App
+import android.example.findmyfriends.view.common.BaseActivity
 import android.example.findmyfriends.view.friendsactivity.FriendListActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import com.vk.api.sdk.VK
-import com.vk.api.sdk.auth.VKAccessToken
-import com.vk.api.sdk.auth.VKAuthCallback
-import moxy.MvpAppCompatActivity
+import com.vk.api.sdk.auth.VKScope
 import moxy.presenter.InjectPresenter
 import moxy.presenter.ProvidePresenter
 import javax.inject.Inject
 
 
-class MainActivity : MvpAppCompatActivity() , BaseActivity {
+class MainActivity : BaseActivity(), MainView {
 
     @Inject
     @InjectPresenter
@@ -24,7 +25,7 @@ class MainActivity : MvpAppCompatActivity() , BaseActivity {
     @ProvidePresenter
     fun providePresenter(): MainPresenter = presenter
 
-    private var token = "token"
+    var vkToken = "token"
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -36,26 +37,13 @@ class MainActivity : MvpAppCompatActivity() , BaseActivity {
         val loginButton = findViewById<Button>(R.id.login_vk_button)
 
         loginButton.setOnClickListener {
-            if (presenter.login(token))
-                startNewActivity()
-            else {
-                makeToast("Проверьте подключение к интернету")
-            }
+            presenter.login(vkToken)
         }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
 
-        val callback = object : VKAuthCallback {
-                override fun onLogin(token: VKAccessToken) {
-                    this@MainActivity.token = token.accessToken
-                    startNewActivity()
-                }
-
-                override fun onLoginFailed(errorCode: Int) {
-                    makeToast("Не удалось авторизоваться")
-                }
-            }
+        val callback = presenter.onCallbackResult()
 
         if (data == null || !VK.onActivityResult(requestCode, resultCode, data , callback)) {
             makeToast("Произошла ошибка!")
@@ -63,13 +51,17 @@ class MainActivity : MvpAppCompatActivity() , BaseActivity {
         }
     }
 
-//    override fun makeToast(message: String) {
-//        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
-//    }
-
-    private fun startNewActivity() {
+    override fun startActivity() {
         val friendListIntent = Intent(this, FriendListActivity::class.java)
-        friendListIntent.putExtra("vk token", token)
+        friendListIntent.putExtra("vktoken", vkToken)
         startActivity(friendListIntent)
+    }
+
+    override fun logInVk() {
+        VK.login(this@MainActivity, listOf(VKScope.FRIENDS))
+    }
+
+    override fun setToken(input: String) {
+        vkToken = input
     }
 }
