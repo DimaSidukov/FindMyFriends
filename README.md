@@ -26,3 +26,4 @@ Mark your VK friends' cities location on map
 * Найти пример использования ROOM в MVP-паттерне: можно ли обойтись без LiveData или Observable
 
 [Репозиторий](https://github.com/KostiaLeo/moxy-dagger2-rxjava) с MVP, на который следует опираться
+Ещё один [репозиторий](https://github.com/aleesha711/Android-App-with-MVP-and-Room) с MVP 
