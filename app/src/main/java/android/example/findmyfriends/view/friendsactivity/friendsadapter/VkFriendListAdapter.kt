@@ -17,6 +17,8 @@ import com.squareup.picasso.Picasso
 class VkFriendListAdapter(private var userData: List<UserInfo>, private var forUpdate: List<UserInfo>, private val button: FloatingActionButton) :
     RecyclerView.Adapter<VkFriendListAdapter.MyViewHolder>() {
 
+    constructor(userData: List<UserInfo>, button: FloatingActionButton) : this(userData, userData, button)
+
     private var checkBoxStateArray = SparseBooleanArray()
     private var flagState = false
     private var allowedToChangeState = false

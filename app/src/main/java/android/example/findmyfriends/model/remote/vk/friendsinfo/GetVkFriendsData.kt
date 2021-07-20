@@ -6,5 +6,5 @@ import com.squareup.moshi.JsonClass
 @JsonClass(generateAdapter = true)
 data class GetVkFriendsData(
     @field:Json(name = "response")
-    val response: Response?
+    val response: Response? = null
 )

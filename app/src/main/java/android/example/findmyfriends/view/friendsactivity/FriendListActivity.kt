@@ -8,12 +8,14 @@ import android.example.findmyfriends.view.common.BaseActivity
 import android.example.findmyfriends.view.friendsactivity.friendsadapter.VkFriendListAdapter
 import android.example.findmyfriends.view.mapsactivity.MapsActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.WindowManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ProgressBar
 import androidx.core.widget.doAfterTextChanged
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -55,10 +57,12 @@ class FriendListActivity : BaseActivity(), FriendsView {
         initializeElements()
 
         var isDataFetched = false
-        GlobalScope.launch {
+
+        lifecycleScope.launch {
             if(!presenter.getDataFromVk(token))
                 isDataFetched = true
         }
+
         if(isDataFetched)
             makeToast("Не удалось загрузить данные")
 
@@ -86,7 +90,7 @@ class FriendListActivity : BaseActivity(), FriendsView {
     }
 
     override fun startActivity() {
-        val arrayOfCities = presenter.openMapHandler(vkAdapter.getChecked(), vkAdapter.getList())
+        val arrayOfCities = presenter.getListOfUsersWithCities(vkAdapter.getChecked(), vkAdapter.getList())
         val bundle = Bundle()
 
         val mapIntent = Intent(this@FriendListActivity, MapsActivity::class.java)
@@ -121,13 +125,10 @@ class FriendListActivity : BaseActivity(), FriendsView {
     }
 
     private fun buildRecyclerView() {
-
-        var list = mutableListOf<UserInfo>()
-        GlobalScope.launch {
-            list = presenter.accessUserList() as MutableList<UserInfo>
+        lifecycleScope.launch {
+            vkAdapter = VkFriendListAdapter(presenter.getUserList(), openMapButton)
         }
         recyclerView = findViewById(R.id.list_view)
-        vkAdapter = VkFriendListAdapter(list, list, openMapButton)
         recyclerView.layoutManager = LinearLayoutManager(this@FriendListActivity)
         recyclerView.adapter = vkAdapter
         vkAdapter.notifyDataSetChanged()

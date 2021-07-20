@@ -1,14 +1,12 @@
 package android.example.findmyfriends.view.friendsactivity
 
 import android.content.Context
-import android.content.Intent
 import android.example.findmyfriends.data.database.entity.UserInfo
 import android.example.findmyfriends.model.remote.geodata.UserLocationData
 import android.example.findmyfriends.repository.RepositoryImpl
 import android.example.findmyfriends.view.common.BasePresenter
-import android.example.findmyfriends.view.mapsactivity.MapsActivity
+import android.util.Log
 import android.util.SparseBooleanArray
-import kotlinx.coroutines.*
 import moxy.InjectViewState
 import javax.inject.Inject
 
@@ -27,22 +25,22 @@ class FriendsPresenter @Inject constructor(context: Context, private val reposit
         viewState.setItemsFlagState()
     }
 
-    suspend fun getDataFromVk(token: String) : Boolean = repositoryImpl.downloadData(token)
+    suspend fun getDataFromVk(token: String): Boolean {
 
-    private suspend fun setUserList(): List<UserInfo> {
-        return repositoryImpl.retrieveData()
+        Log.d("IS IT TRUE?", repositoryImpl.downloadData(token).toString())
+
+        return repositoryImpl.downloadData(token)
     }
 
-    suspend fun accessUserList(): List<UserInfo> = GlobalScope.async {
-        return@async setUserList()
-    }.await()
-
+    suspend fun getUserList(): List<UserInfo> {
+        return repositoryImpl.retrieveData()
+    }
     fun clearData() = repositoryImpl.clearData()
 
     fun updateList(s: String, initialList: List<UserInfo>): MutableList<UserInfo> {
-        val updated : MutableList<UserInfo> = mutableListOf()
-        for(item in initialList) {
-            if(item.name.lowercase().startsWith(s.lowercase())) {
+        val updated: MutableList<UserInfo> = mutableListOf()
+        for (item in initialList) {
+            if (item.name.lowercase().startsWith(s.lowercase())) {
                 updated.add(item)
             }
         }
@@ -51,13 +49,17 @@ class FriendsPresenter @Inject constructor(context: Context, private val reposit
 
     fun openMapHandler() {
         if (isNetworkAvailable()) {
-            viewState.makeToast("Проверьте подключение к интернету!")
-        } else {
             viewState.startActivity()
+
+        } else {
+            viewState.makeToast("Проверьте подключение к интернету!")
         }
     }
 
-    fun openMapHandler(list: SparseBooleanArray, inputList: List<UserInfo>) : ArrayList<UserLocationData> {
+    fun getListOfUsersWithCities(
+        list: SparseBooleanArray,
+        inputList: List<UserInfo>
+    ): ArrayList<UserLocationData> {
 
         var finalList = arrayListOf<UserLocationData>()
 
@@ -71,13 +73,17 @@ class FriendsPresenter @Inject constructor(context: Context, private val reposit
         return finalList
     }
 
-    private fun getExclusiveIndices(list: SparseBooleanArray, initialList: List<UserInfo>): MutableList<Int> {
+    private fun getExclusiveIndices(
+        list: SparseBooleanArray,
+        initialList: List<UserInfo>
+    ): MutableList<Int> {
 
         val listOfChecked = mutableListOf<Int>()
-        for(i in initialList.indices) {
+        for (i in initialList.indices) {
             try {
-                if(list.valueAt(i)) listOfChecked.add(list.keyAt(i))
-            } catch (e: ArrayIndexOutOfBoundsException) { }
+                if (list.valueAt(i)) listOfChecked.add(list.keyAt(i))
+            } catch (e: ArrayIndexOutOfBoundsException) {
+            }
         }
 
         return listOfChecked

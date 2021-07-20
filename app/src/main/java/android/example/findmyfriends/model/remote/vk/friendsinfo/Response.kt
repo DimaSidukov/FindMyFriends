@@ -6,7 +6,7 @@ import com.squareup.moshi.JsonClass
 @JsonClass(generateAdapter = true)
 data class Response(
     @field:Json(name = "count")
-    val count: Int?,
+    val count: Int? = null,
     @field:Json(name = "items")
-    val items: List<Item>?
+    val items: List<Item>? = null
 )

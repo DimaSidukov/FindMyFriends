@@ -8,6 +8,6 @@ import retrofit2.http.Url
 interface VkFriendsService {
 
     @GET
-    fun getFriendList(@Url request: String) : Call<GetVkFriendsData>
+    suspend fun getFriendList(@Url request: String) : GetVkFriendsData
 }
 
