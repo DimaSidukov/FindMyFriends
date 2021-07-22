@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#ECEFF1"
+    android:background="#FFFFFF"
     android:animateLayoutChanges="true"
     tools:context=".view.friendsactivity.FriendListActivity">
 
@@ -23,7 +23,8 @@
             android:layout_height="50dp"
             android:layout_weight="8"
             android:layout_marginEnd="10dp"
-            android:paddingLeft="10dp"
+            android:paddingStart="10dp"
+            android:fontFamily="sans-serif-thin"
             android:textSize="17sp"
             android:background="@drawable/rounded_edittext"
             android:hint="@string/enter_user_name"
@@ -36,6 +37,7 @@
             android:layout_marginTop="7dp"
             android:layout_marginEnd="10dp"
             android:layout_weight="3.8"
+            android:fontFamily="sans-serif-thin"
             android:background="@drawable/rounded_button"
             android:text="@string/select_all" />
 
@@ -49,7 +51,6 @@
         android:paddingEnd="10dp"
         android:layout_marginTop="10dp"
         android:layout_below="@id/text_and_button"
-        android:background="#ECEFF1"
         android:scrollbars="vertical"/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton

@@ -7,6 +7,7 @@ import android.example.findmyfriends.repository.RepositoryImpl
 import android.example.findmyfriends.view.common.BasePresenter
 import android.util.Log
 import android.util.SparseBooleanArray
+import kotlinx.coroutines.runBlocking
 import moxy.InjectViewState
 import javax.inject.Inject
 
@@ -25,12 +26,7 @@ class FriendsPresenter @Inject constructor(context: Context, private val reposit
         viewState.setItemsFlagState()
     }
 
-    suspend fun getDataFromVk(token: String): Boolean {
-
-        Log.d("IS IT TRUE?", repositoryImpl.downloadData(token).toString())
-
-        return repositoryImpl.downloadData(token)
-    }
+    suspend fun getDataFromVk(token: String) = repositoryImpl.downloadData(token)
 
     suspend fun getUserList(): List<UserInfo> {
         return repositoryImpl.retrieveData()
@@ -54,6 +50,18 @@ class FriendsPresenter @Inject constructor(context: Context, private val reposit
         } else {
             viewState.makeToast("Проверьте подключение к интернету!")
         }
+    }
+
+    fun checkDataBase(token: String) {
+
+        var isDataFetched = false
+        runBlocking {
+            if(getDataFromVk(token))
+                isDataFetched = true
+        }
+
+        if(!isDataFetched)
+            viewState.makeToast("Не удалось загрузить данные")
     }
 
     fun getListOfUsersWithCities(

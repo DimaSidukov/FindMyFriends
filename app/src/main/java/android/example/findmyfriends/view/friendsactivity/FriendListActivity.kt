@@ -51,20 +51,11 @@ class FriendListActivity : BaseActivity(), FriendsView {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_friend_list)
 
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
         presenter.onViewAttach()
 
         initializeElements()
 
-        var isDataFetched = false
-
-        lifecycleScope.launch {
-            if(!presenter.getDataFromVk(token))
-                isDataFetched = true
-        }
-
-        if(isDataFetched)
-            makeToast("Не удалось загрузить данные")
+        presenter.checkDataBase(token)
 
         buildRecyclerView()
 
@@ -109,6 +100,7 @@ class FriendListActivity : BaseActivity(), FriendsView {
         setItemsState()
     }
 
+    @DelicateCoroutinesApi
     override fun finishAndRemoveTask() {
         GlobalScope.launch {
             presenter.clearData()
@@ -125,7 +117,7 @@ class FriendListActivity : BaseActivity(), FriendsView {
     }
 
     private fun buildRecyclerView() {
-        lifecycleScope.launch {
+        runBlocking {
             vkAdapter = VkFriendListAdapter(presenter.getUserList(), openMapButton)
         }
         recyclerView = findViewById(R.id.list_view)

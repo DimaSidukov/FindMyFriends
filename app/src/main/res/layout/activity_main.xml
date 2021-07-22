@@ -14,9 +14,20 @@
         android:text="@string/login_via_vk"
         android:textAllCaps="false"
         android:textSize="20sp"
+        android:fontFamily="sans-serif-thin"
         android:background="@drawable/rounded_button"
-        app:icon = "@mipmap/vk_logo_foreground"
+        app:icon="@mipmap/vk_logo_foreground"
         app:iconSize="70dp"
         android:id="@+id/login_vk_button"/>
+
+    <ImageButton
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="128dp"
+        android:background= "@mipmap/info_logo"
+        android:layout_below="@id/login_vk_button"
+        android:id="@+id/app_info">
+    </ImageButton>
 
 </RelativeLayout>
