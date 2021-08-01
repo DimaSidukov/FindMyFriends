@@ -3,7 +3,6 @@ package android.example.findmyfriends.view.friendsactivity
 import android.content.Intent
 import android.example.findmyfriends.R
 import android.example.findmyfriends.application.App
-import android.example.findmyfriends.data.database.entity.UserInfo
 import android.example.findmyfriends.view.common.BaseActivity
 import android.example.findmyfriends.view.friendsactivity.friendsadapter.VkFriendListAdapter
 import android.example.findmyfriends.view.mapsactivity.MapsActivity
@@ -15,13 +14,13 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ProgressBar
 import androidx.core.widget.doAfterTextChanged
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.*
 import moxy.presenter.InjectPresenter
 import moxy.presenter.ProvidePresenter
+import java.io.File
 import java.util.*
 import javax.inject.Inject
 
@@ -52,11 +51,9 @@ class FriendListActivity : BaseActivity(), FriendsView {
         setContentView(R.layout.activity_friend_list)
 
         presenter.onViewAttach()
-
         initializeElements()
 
         presenter.checkDataBase(token)
-
         buildRecyclerView()
 
         selectAllButton.setOnClickListener {
@@ -69,18 +66,16 @@ class FriendListActivity : BaseActivity(), FriendsView {
         }
 
         openMapButton.setOnClickListener {
-
-            progressBar.visibility = View.VISIBLE
-            window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
-
             presenter.openMapHandler()
-
-            progressBar.visibility = View.GONE
-            window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
         }
     }
 
     override fun startActivity() {
+
+        window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+        progressBar.visibility = View.VISIBLE
+        Log.d("IS IT VISIBLE?", progressBar.visibility.toString())
+
         val arrayOfCities = presenter.getListOfUsersWithCities(vkAdapter.getChecked(), vkAdapter.getList())
         val bundle = Bundle()
 
@@ -88,6 +83,10 @@ class FriendListActivity : BaseActivity(), FriendsView {
         mapIntent.putParcelableArrayListExtra("arrayOfCities", arrayOfCities)
         mapIntent.putExtras(bundle)
         startActivity(mapIntent)
+
+        progressBar.visibility = View.GONE
+        window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+        Log.d("IS IT VISIBLE?", progressBar.visibility.toString())
     }
 
     override fun setItemsFlagState() {
@@ -102,9 +101,7 @@ class FriendListActivity : BaseActivity(), FriendsView {
 
     @DelicateCoroutinesApi
     override fun finishAndRemoveTask() {
-        GlobalScope.launch {
-            presenter.clearData()
-        }
+        presenter.deleteDataBase()
         super.finishAndRemoveTask()
     }
 

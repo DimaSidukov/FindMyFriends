@@ -9,6 +9,7 @@ import android.util.Log
 import android.util.SparseBooleanArray
 import kotlinx.coroutines.runBlocking
 import moxy.InjectViewState
+import java.io.File
 import javax.inject.Inject
 
 @InjectViewState
@@ -31,7 +32,6 @@ class FriendsPresenter @Inject constructor(context: Context, private val reposit
     suspend fun getUserList(): List<UserInfo> {
         return repositoryImpl.retrieveData()
     }
-    fun clearData() = repositoryImpl.clearData()
 
     fun updateList(s: String, initialList: List<UserInfo>): MutableList<UserInfo> {
         val updated: MutableList<UserInfo> = mutableListOf()
@@ -62,6 +62,14 @@ class FriendsPresenter @Inject constructor(context: Context, private val reposit
 
         if(!isDataFetched)
             viewState.makeToast("Не удалось загрузить данные")
+    }
+
+    fun deleteDataBase() {
+
+        val databasesDir = File(context.applicationInfo.dataDir.toString() + "/databases")
+        File(databasesDir, "UserInfoDB.db").delete()
+
+        context.deleteDatabase("UserInfoDB")
     }
 
     fun getListOfUsersWithCities(

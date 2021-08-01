@@ -9,8 +9,6 @@ class RepositoryImpl @Inject constructor(private val localSource: LocalSourceImp
 
     override suspend fun retrieveData() = localSource.retrieveData()
 
-    override fun clearData() = localSource.clearData()
-
     override fun loadMapData(users: List<UserInfo>) = remoteSource.loadMapData(users)
 
     override suspend fun downloadData(token: String) : Boolean {

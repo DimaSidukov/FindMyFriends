@@ -7,5 +7,4 @@ interface LocalSource {
     suspend fun loadData(user: UserInfo)
     suspend fun loadAllData(users: List<UserInfo>)
     suspend fun retrieveData() : List<UserInfo>
-    fun clearData()
 }

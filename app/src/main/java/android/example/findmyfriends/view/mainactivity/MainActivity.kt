@@ -32,8 +32,7 @@ class MainActivity : BaseActivity(), MainView {
 
     var vkToken = "token"
 
-    private val alertDialogMessage = "Данное приложение позволяет просмотреть местоположения друзей " +
-            "ВКонтакте исходя из указанного в профиле города.\nПриложение создано в учебных целях."
+    private val alertDialogMessage = R.string.alert_dialog_message
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
