@@ -20,13 +20,11 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.*
 import moxy.presenter.InjectPresenter
 import moxy.presenter.ProvidePresenter
-import java.io.File
 import java.util.*
 import javax.inject.Inject
 
 class FriendListActivity : BaseActivity(), FriendsView {
 
-    @Inject
     @InjectPresenter
     lateinit var presenter: FriendsPresenter
 
@@ -52,8 +50,6 @@ class FriendListActivity : BaseActivity(), FriendsView {
 
         presenter.onViewAttach()
         initializeElements()
-
-        presenter.checkDataBase(token)
         buildRecyclerView()
 
         selectAllButton.setOnClickListener {
@@ -72,21 +68,19 @@ class FriendListActivity : BaseActivity(), FriendsView {
 
     override fun startActivity() {
 
-        window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
         progressBar.visibility = View.VISIBLE
-        Log.d("IS IT VISIBLE?", progressBar.visibility.toString())
+        window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+        Log.d("progress bar visibility", progressBar.visibility.toString())
 
         val arrayOfCities = presenter.getListOfUsersWithCities(vkAdapter.getChecked(), vkAdapter.getList())
-        val bundle = Bundle()
 
         val mapIntent = Intent(this@FriendListActivity, MapsActivity::class.java)
         mapIntent.putParcelableArrayListExtra("arrayOfCities", arrayOfCities)
-        mapIntent.putExtras(bundle)
         startActivity(mapIntent)
 
-        progressBar.visibility = View.GONE
         window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
-        Log.d("IS IT VISIBLE?", progressBar.visibility.toString())
+        progressBar.visibility = View.INVISIBLE
+        Log.d("progress bar visibility", progressBar.visibility.toString())
     }
 
     override fun setItemsFlagState() {
@@ -99,7 +93,6 @@ class FriendListActivity : BaseActivity(), FriendsView {
         setItemsState()
     }
 
-    @DelicateCoroutinesApi
     override fun finishAndRemoveTask() {
         presenter.deleteDataBase()
         super.finishAndRemoveTask()
@@ -110,13 +103,11 @@ class FriendListActivity : BaseActivity(), FriendsView {
         selectAllButton = findViewById(R.id.pick_all)
         openMapButton = findViewById(R.id.open_map_button)
         progressBar = findViewById(R.id.progress_bar)
-        token = intent.getStringExtra("vktoken").toString()
+        token = intent.getStringExtra("vkToken").toString()
     }
 
     private fun buildRecyclerView() {
-        runBlocking {
-            vkAdapter = VkFriendListAdapter(presenter.getUserList(), openMapButton)
-        }
+        vkAdapter = VkFriendListAdapter(presenter.getUserList(token), openMapButton)
         recyclerView = findViewById(R.id.list_view)
         recyclerView.layoutManager = LinearLayoutManager(this@FriendListActivity)
         recyclerView.adapter = vkAdapter

@@ -11,7 +11,6 @@ import android.os.Bundle
 import android.view.Gravity
 import android.widget.Button
 import android.widget.ImageButton
-import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import com.vk.api.sdk.VK
@@ -32,6 +31,9 @@ class MainActivity : BaseActivity(), MainView {
 
     var vkToken = "token"
 
+    private lateinit var loginButton : Button
+    private lateinit var infoButton : ImageButton
+
     private val alertDialogMessage = R.string.alert_dialog_message
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,8 +43,7 @@ class MainActivity : BaseActivity(), MainView {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val loginButton = findViewById<Button>(R.id.login_vk_button)
-        val infoButton = findViewById<ImageButton>(R.id.app_info)
+        initializeElements()
 
         loginButton.setOnClickListener {
             presenter.login(vkToken)
@@ -75,7 +76,7 @@ class MainActivity : BaseActivity(), MainView {
 
     override fun startActivity() {
         val friendListIntent = Intent(this, FriendListActivity::class.java)
-        friendListIntent.putExtra("vktoken", vkToken)
+        friendListIntent.putExtra("vkToken", vkToken)
         startActivity(friendListIntent)
     }
 
@@ -85,5 +86,10 @@ class MainActivity : BaseActivity(), MainView {
 
     override fun setToken(input: String) {
         vkToken = input
+    }
+
+    private fun initializeElements() {
+        loginButton = findViewById(R.id.login_vk_button)
+        infoButton = findViewById(R.id.app_info)
     }
 }

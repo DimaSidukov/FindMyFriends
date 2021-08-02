@@ -12,4 +12,8 @@ class LocalSourceImpl @Inject constructor(val usersDao: UserInfoDao) : LocalSour
     override suspend fun loadAllData(users: List<UserInfo>) = usersDao.insertAllUsers(users)
 
     override suspend fun retrieveData() : List<UserInfo> = usersDao.getAllUsers()
+
+    override fun destroyDataBase() {
+        AppDatabase.destroyDataBase()
+    }
 }

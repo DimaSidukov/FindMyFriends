@@ -2,14 +2,9 @@ package android.example.findmyfriends.model.remote.source
 
 import android.example.findmyfriends.data.database.entity.UserInfo
 import android.example.findmyfriends.model.remote.geodata.UserLocationData
-import android.example.findmyfriends.model.remote.vk.friendsinfo.GetVkFriendsData
 import android.example.findmyfriends.model.remote.vk.retrofitservice.VkFriendsService
 import android.location.Geocoder
-import android.util.Log
 import kotlinx.coroutines.runBlocking
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import retrofit2.Retrofit
 import javax.inject.Inject
 

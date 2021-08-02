@@ -8,12 +8,6 @@ import javax.inject.Inject
 
 open class BasePresenter<view: BaseView> @Inject constructor (val context: Context) : MvpPresenter<view>() {
 
-//    fun accessVKToken() = vkAccessToken
-//    fun accessCurrentToken() = vkAccessToken
-//    fun accessRequestVK() = requestFriendsVK
-//    fun accessMiscURL() = miscURL
-//    fun accessLocationData() = locData
-
     fun isNetworkAvailable(): Boolean {
         val connectivityManager : ConnectivityManager =
             context.getSystemService(AppCompatActivity.CONNECTIVITY_SERVICE) as ConnectivityManager

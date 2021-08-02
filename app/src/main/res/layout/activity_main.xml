@@ -8,17 +8,17 @@
     tools:context=".view.mainactivity.MainActivity">
 
     <com.google.android.material.button.MaterialButton
+        android:id="@+id/login_vk_button"
         android:layout_width="250dp"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
+        android:background="@drawable/rounded_button"
+        android:fontFamily="sans-serif-thin"
         android:text="@string/login_via_vk"
         android:textAllCaps="false"
         android:textSize="20sp"
-        android:fontFamily="sans-serif-thin"
-        android:background="@drawable/rounded_button"
         app:icon="@mipmap/vk_logo_foreground"
-        app:iconSize="70dp"
-        android:id="@+id/login_vk_button"/>
+        app:iconSize="70dp" />
 
     <ImageButton
         android:layout_width="70dp"

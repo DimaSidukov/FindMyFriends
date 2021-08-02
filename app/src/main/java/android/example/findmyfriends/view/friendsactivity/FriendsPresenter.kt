@@ -5,9 +5,8 @@ import android.example.findmyfriends.data.database.entity.UserInfo
 import android.example.findmyfriends.model.remote.geodata.UserLocationData
 import android.example.findmyfriends.repository.RepositoryImpl
 import android.example.findmyfriends.view.common.BasePresenter
-import android.util.Log
 import android.util.SparseBooleanArray
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 import moxy.InjectViewState
 import java.io.File
 import javax.inject.Inject
@@ -19,6 +18,14 @@ class FriendsPresenter @Inject constructor(context: Context, private val reposit
     var adapterSelectedItemsState = false
     lateinit var allCheckBoxesArray: SparseBooleanArray
 
+    override fun attachView(view: FriendsView?) {
+        super.attachView(view)
+    }
+
+    override fun onFirstViewAttach() {
+        super.onFirstViewAttach()
+    }
+
     fun onViewAttach() {
         super.onFirstViewAttach()
 
@@ -27,10 +34,14 @@ class FriendsPresenter @Inject constructor(context: Context, private val reposit
         viewState.setItemsFlagState()
     }
 
-    suspend fun getDataFromVk(token: String) = repositoryImpl.downloadData(token)
+    fun getUserList(token: String): List<UserInfo> {
 
-    suspend fun getUserList(): List<UserInfo> {
-        return repositoryImpl.retrieveData()
+        val userList = repositoryImpl.downloadData(token)
+
+        GlobalScope.launch(Dispatchers.Main) {
+            repositoryImpl.loadAllData(userList)
+        }
+        return userList
     }
 
     fun updateList(s: String, initialList: List<UserInfo>): MutableList<UserInfo> {
@@ -46,22 +57,9 @@ class FriendsPresenter @Inject constructor(context: Context, private val reposit
     fun openMapHandler() {
         if (isNetworkAvailable()) {
             viewState.startActivity()
-
         } else {
             viewState.makeToast("Проверьте подключение к интернету!")
         }
-    }
-
-    fun checkDataBase(token: String) {
-
-        var isDataFetched = false
-        runBlocking {
-            if(getDataFromVk(token))
-                isDataFetched = true
-        }
-
-        if(!isDataFetched)
-            viewState.makeToast("Не удалось загрузить данные")
     }
 
     fun deleteDataBase() {
@@ -70,6 +68,7 @@ class FriendsPresenter @Inject constructor(context: Context, private val reposit
         File(databasesDir, "UserInfoDB.db").delete()
 
         context.deleteDatabase("UserInfoDB")
+        repositoryImpl.destroyDataBase()
     }
 
     fun getListOfUsersWithCities(
@@ -105,6 +104,11 @@ class FriendsPresenter @Inject constructor(context: Context, private val reposit
         return listOfChecked
     }
 
-    private fun getCoordinatesByLocation(users: List<UserInfo>):
-            MutableList<UserLocationData> = repositoryImpl.loadMapData(users)
+    private fun getCoordinatesByLocation(users: List<UserInfo>) : MutableList<UserLocationData> {
+        var list : MutableList<UserLocationData>
+        runBlocking {
+            list = repositoryImpl.loadMapData(users)
+        }
+        return list
+    }
 }

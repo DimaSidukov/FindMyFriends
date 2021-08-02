@@ -5,20 +5,15 @@ import android.example.findmyfriends.model.local.source.LocalSourceImpl
 import android.example.findmyfriends.model.remote.source.RemoteSourceImpl
 import javax.inject.Inject
 
-class RepositoryImpl @Inject constructor(private val localSource: LocalSourceImpl, private val remoteSource: RemoteSourceImpl) : Repository{
+class RepositoryImpl @Inject constructor(private val localSource: LocalSourceImpl, private val remoteSource: RemoteSourceImpl) : Repository {
 
-    override suspend fun retrieveData() = localSource.retrieveData()
+    override suspend fun loadAllData(users: List<UserInfo>) = localSource.loadAllData(users)
 
-    override fun loadMapData(users: List<UserInfo>) = remoteSource.loadMapData(users)
+    override suspend fun loadMapData(users: List<UserInfo>) = remoteSource.loadMapData(localSource.retrieveData())
 
-    override suspend fun downloadData(token: String) : Boolean {
-
-        val responseList = remoteSource.getResponse(token)
-
-        return if (responseList.isEmpty()) false
-        else {
-            localSource.loadAllData(responseList)
-            true
-        }
+    override fun downloadData(token: String): List<UserInfo> {
+        return remoteSource.getResponse(token)
     }
+
+    override fun destroyDataBase() = localSource.destroyDataBase()
 }
