@@ -1,8 +1,8 @@
 package android.example.findmyfriends.di.modules
 
-import android.example.findmyfriends.model.local.source.LocalSourceImpl
-import android.example.findmyfriends.model.remote.source.RemoteSourceImpl
-import android.example.findmyfriends.repository.RepositoryImpl
+import android.example.findmyfriends.data.source.local.LocalSourceImpl
+import android.example.findmyfriends.data.source.remote.RemoteSourceImpl
+import android.example.findmyfriends.data.repository.RepositoryImpl
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton

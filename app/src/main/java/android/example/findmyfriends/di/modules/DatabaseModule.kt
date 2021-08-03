@@ -1,8 +1,8 @@
 package android.example.findmyfriends.di.modules
 
 import android.content.Context
-import android.example.findmyfriends.data.database.dao.UserInfoDao
-import android.example.findmyfriends.data.database.database.AppDatabase
+import android.example.findmyfriends.data.source.local.database.dao.UserInfoDao
+import android.example.findmyfriends.data.source.local.database.database.AppDatabase
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton

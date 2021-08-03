@@ -1,10 +1,10 @@
 package android.example.findmyfriends.di.modules
 
 import android.content.Context
-import android.example.findmyfriends.repository.RepositoryImpl
-import android.example.findmyfriends.view.friendsactivity.FriendsPresenter
-import android.example.findmyfriends.view.mainactivity.MainPresenter
-import android.example.findmyfriends.view.mapsactivity.MapPresenter
+import android.example.findmyfriends.data.repository.RepositoryImpl
+import android.example.findmyfriends.ui.friends.FriendsPresenter
+import android.example.findmyfriends.ui.main.MainPresenter
+import android.example.findmyfriends.ui.map.MapPresenter
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton

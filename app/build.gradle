@@ -34,16 +34,28 @@ android {
     buildFeatures {
         viewBinding true
     }
+
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/license.txt'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/notice.txt'
+        exclude 'META-INF/ASL2.0'
+        exclude("META-INF/*.kotlin_module")
+    }
 }
 
 dependencies {
 
     def room_version = "2.3.0"
-    def moxyVersion = "2.2.2"
+    def omegaMoxyVersion = "2.2.0"
 
-    implementation 'androidx.appcompat:appcompat:1.3.0'
+    implementation 'androidx.appcompat:appcompat:1.3.1'
     implementation 'com.google.android.material:material:1.4.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.0'
     implementation 'com.google.android.gms:play-services-maps:17.0.1'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
@@ -70,11 +82,11 @@ dependencies {
     kapt("androidx.room:room-compiler:$room_version")
     implementation("androidx.room:room-ktx:$room_version")
 
-    //Moxy
-    implementation "com.github.moxy-community:moxy:$moxyVersion"
-    kapt "com.github.moxy-community:moxy-compiler:$moxyVersion"
-    implementation "com.github.moxy-community:moxy-ktx:$moxyVersion"
-    implementation "com.github.moxy-community:moxy-androidx:$moxyVersion"
+//    //Moxy
+//    implementation "com.github.moxy-community:moxy:$moxyVersion"
+//    kapt "com.github.moxy-community:moxy-compiler:$moxyVersion"
+//    implementation "com.github.moxy-community:moxy-ktx:$moxyVersion"
+//    implementation "com.github.moxy-community:moxy-androidx:$moxyVersion"
 
     //Dagger
     implementation 'com.google.dagger:dagger:2.37'
@@ -86,4 +98,13 @@ dependencies {
     //Kotlin-extension
     implementation 'androidx.core:core-ktx:1.6.0'
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.4.0-alpha02"
+
+    //OmegaBase
+    implementation 'com.github.omega-r:omegabase:1.4.1'
+
+    //OmegaMoxy
+    implementation "com.github.omega-r.OmegaMoxy:moxy:$omegaMoxyVersion"
+    kapt "com.github.omega-r.omegamoxy:moxy-compiler:$omegaMoxyVersion"
+    implementation "com.github.omega-r.omegamoxy:moxy-android:$omegaMoxyVersion"
+    implementation "com.github.omega-r.omegamoxy:moxy-androidx:$omegaMoxyVersion"
 }
