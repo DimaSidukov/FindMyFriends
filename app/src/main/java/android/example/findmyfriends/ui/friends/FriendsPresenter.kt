@@ -1,16 +1,26 @@
 package android.example.findmyfriends.ui.friends
 
-import android.content.Context
+import android.example.findmyfriends.FindMyFriendsApplication
+import android.example.findmyfriends.R
+import android.example.findmyfriends.data.repository.RepositoryImpl
 import android.example.findmyfriends.data.source.local.model.UserInfo
 import android.example.findmyfriends.data.source.remote.model.geo.UserLocationData
-import android.example.findmyfriends.data.repository.RepositoryImpl
 import android.example.findmyfriends.ui.common.BasePresenter
 import android.util.SparseBooleanArray
-import kotlinx.coroutines.*
-import java.io.File
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
-class FriendsPresenter @Inject constructor(context: Context, private val repositoryImpl : RepositoryImpl) : BasePresenter<FriendsView>(context) {
+class FriendsPresenter @Inject constructor(private val token: String) : BasePresenter<FriendsView>() {
+
+    init {
+        FindMyFriendsApplication.appComponent.inject(this)
+    }
+
+    @Inject
+    lateinit var repositoryImpl: RepositoryImpl
 
     var editTextText = ""
     var adapterSelectedItemsState = false
@@ -24,7 +34,7 @@ class FriendsPresenter @Inject constructor(context: Context, private val reposit
         viewState.setItemsFlagState()
     }
 
-    fun getUserList(token: String): List<UserInfo> {
+    fun getUserList(): List<UserInfo> {
 
         val userList = repositoryImpl.downloadData(token)
 
@@ -48,17 +58,8 @@ class FriendsPresenter @Inject constructor(context: Context, private val reposit
         if (isNetworkAvailable()) {
             viewState.startMapActivity()
         } else {
-            viewState.makeToast("Проверьте подключение к интернету!")
+            viewState.makeToast(R.string.check_internet_connection)
         }
-    }
-
-    fun deleteDataBase() {
-
-        val databasesDir = File(context.applicationInfo.dataDir.toString() + "/databases")
-        File(databasesDir, "UserInfoDB.db").delete()
-
-        context.deleteDatabase("UserInfoDB")
-        repositoryImpl.destroyDataBase()
     }
 
     fun getListOfUsersWithCities(

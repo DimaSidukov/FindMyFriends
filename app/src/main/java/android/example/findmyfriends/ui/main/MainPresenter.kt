@@ -1,13 +1,16 @@
 package android.example.findmyfriends.ui.main
 
-import android.content.Context
+import android.example.findmyfriends.FindMyFriendsApplication
+import android.example.findmyfriends.R
 import android.example.findmyfriends.ui.common.BasePresenter
 import com.vk.api.sdk.auth.VKAccessToken
 import com.vk.api.sdk.auth.VKAuthCallback
-import javax.inject.Inject
 
-//раньше можно было вставлять аннотацию @InjectViewState, а сейчас уже нельзя
-class MainPresenter @Inject constructor(context: Context) : BasePresenter<MainView>(context) {
+class MainPresenter : BasePresenter<MainView>() {
+
+    init {
+        FindMyFriendsApplication.appComponent.inject(this)
+    }
 
     fun login(token: String) {
 
@@ -21,7 +24,7 @@ class MainPresenter @Inject constructor(context: Context) : BasePresenter<MainVi
         else {
             if(verifyVkToken(token)) {
                 viewState.startFriendsActivity()
-            } else viewState.makeToast("Проверьте подключение к интернету")
+            } else viewState.makeToast(R.string.check_internet_connection)
         }
     }
 
@@ -34,7 +37,7 @@ class MainPresenter @Inject constructor(context: Context) : BasePresenter<MainVi
             }
 
             override fun onLoginFailed(errorCode: Int) {
-                viewState.makeToast("Не удалось авторизоваться")
+                viewState.makeToast(R.string.failed_to_authorize)
             }
         }
     }

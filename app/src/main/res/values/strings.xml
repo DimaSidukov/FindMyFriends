@@ -1,11 +1,17 @@
 <resources>
     <string name="app_name">FindMyFriends</string>
+    <string name="title_activity_maps">Map</string>
+
     <string name="login_via_vk">Войти через ВКонтакте</string>
     <string name="enter_user_name">Введите имя пользователя</string>
-    <string name="select_all">Выбрать всех</string>
-    <string name="see_on_map">See on map</string>
-    <integer name="com_vk_sdk_AppId">7887388</integer>
-    <string name="title_activity_maps">Map</string>
     <string name="alert_dialog_message">Данное приложение позволяет просмотреть местоположения друзей
         ВКонтакте исходя из указанного в профиле города.\nПриложение создано в учебных целях</string>
+    <string name="select_all">Выбрать всех</string>
+    <string name="see_on_map">See on map</string>
+    <string name="check_internet_connection">Проверьте подключение к интернету!</string>
+    <string name="error">Произошла ошибка!</string>
+    <string name="failed_to_authorize">Не удалось авторизоваться</string>
+
+    <integer name="com_vk_sdk_AppId">7887388</integer>
+
 </resources>

@@ -2,7 +2,6 @@ package android.example.findmyfriends.ui.main
 
 import android.content.Intent
 import android.example.findmyfriends.R
-import android.example.findmyfriends.FindMyFriendsApplication
 import android.example.findmyfriends.ui.common.BaseActivity
 import android.example.findmyfriends.ui.friends.FriendListActivity
 import android.graphics.Color
@@ -14,10 +13,10 @@ import android.widget.ImageButton
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import com.omegar.mvp.presenter.InjectPresenter
-import com.omegar.mvp.presenter.PresenterType
 import com.omegar.mvp.presenter.ProvidePresenter
 import com.vk.api.sdk.VK
 import com.vk.api.sdk.auth.VKScope
+
 
 class MainActivity : BaseActivity(), MainView {
 
@@ -25,8 +24,7 @@ class MainActivity : BaseActivity(), MainView {
     lateinit var presenter: MainPresenter
 
     @ProvidePresenter
-    //контекст будет передаваться в даггере, поэтому тут будет пустой конструктор
-    fun providePresenter() = MainPresenter(applicationContext)
+    fun providePresenter() = MainPresenter()
 
     var vkToken = "token"
 
@@ -36,8 +34,6 @@ class MainActivity : BaseActivity(), MainView {
     private val alertDialogMessage = R.string.alert_dialog_message
 
     override fun onCreate(savedInstanceState: Bundle?) {
-
-        FindMyFriendsApplication.appComponent.inject(this)
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -68,7 +64,7 @@ class MainActivity : BaseActivity(), MainView {
         val callback = presenter.onCallbackResult()
 
         if (data == null || !VK.onActivityResult(requestCode, resultCode, data , callback)) {
-            makeToast("Произошла ошибка!")
+            makeToast(R.string.error)
             super.onActivityResult(requestCode, resultCode, data)
         }
     }

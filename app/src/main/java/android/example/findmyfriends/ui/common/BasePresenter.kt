@@ -1,17 +1,14 @@
 package android.example.findmyfriends.ui.common
 
-import android.content.Context
-import android.net.ConnectivityManager
-import androidx.appcompat.app.AppCompatActivity
+import android.example.findmyfriends.FindMyFriendsApplication
+import android.example.findmyfriends.data.source.remote.api.NetworkAvailability
 import com.omegar.mvp.MvpPresenter
 import javax.inject.Inject
 
-open class BasePresenter<view: BaseView> @Inject constructor (val context: Context) : MvpPresenter<view>() {
+open class BasePresenter<view: BaseView> : MvpPresenter<view>() {
 
-    fun isNetworkAvailable(): Boolean {
-        val connectivityManager : ConnectivityManager =
-            context.getSystemService(AppCompatActivity.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val activeNetworkInfo = connectivityManager.activeNetworkInfo
-        return activeNetworkInfo != null && activeNetworkInfo.isConnected
-    }
+    @Inject
+    lateinit var networkAvailability: NetworkAvailability
+
+    fun isNetworkAvailable() = networkAvailability.isAvailable
 }

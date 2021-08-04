@@ -1,5 +1,6 @@
 package android.example.findmyfriends.data.source.remote
 
+import android.example.findmyfriends.R
 import android.example.findmyfriends.data.source.local.model.UserInfo
 import android.example.findmyfriends.data.source.remote.model.geo.UserLocationData
 import android.example.findmyfriends.data.source.remote.api.VkFriendsService
@@ -7,6 +8,7 @@ import android.location.Geocoder
 import kotlinx.coroutines.runBlocking
 import retrofit2.Retrofit
 import javax.inject.Inject
+import android.content.res.Resources
 
 class RemoteSourceImpl @Inject constructor(private val retrofit: Retrofit, private val geocoder: Geocoder) :
     RemoteSource {
