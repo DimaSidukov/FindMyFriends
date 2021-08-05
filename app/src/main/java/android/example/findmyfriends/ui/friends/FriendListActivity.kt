@@ -6,21 +6,18 @@ import android.example.findmyfriends.ui.common.BaseActivity
 import android.example.findmyfriends.ui.friends.adapter.VkFriendListAdapter
 import android.example.findmyfriends.ui.map.MapsActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.view.WindowManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ProgressBar
-import androidx.core.view.get
 import androidx.core.widget.doAfterTextChanged
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.omegar.libs.omegalaunchers.ActivityLauncher.Companion.launch
+import com.omega_r.click.setClickListener
 import com.omegar.mvp.presenter.InjectPresenter
 import com.omegar.mvp.presenter.ProvidePresenter
-import kotlinx.coroutines.*
 import java.util.*
 
 class FriendListActivity : BaseActivity(), FriendsView {
@@ -47,7 +44,7 @@ class FriendListActivity : BaseActivity(), FriendsView {
         initializeElements()
         buildRecyclerView()
 
-        selectAllButton.setOnClickListener {
+        selectAllButton.setClickListener {
             vkAdapter.selectAll()
         }
 
@@ -56,7 +53,7 @@ class FriendListActivity : BaseActivity(), FriendsView {
             vkAdapter.filterList(updated)
         }
 
-        openMapButton.setOnClickListener {
+        openMapButton.setClickListener {
             presenter.openMapHandler()
         }
     }
@@ -66,12 +63,10 @@ class FriendListActivity : BaseActivity(), FriendsView {
         progressBar.visibility = View.VISIBLE
         window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
 
-        val arrayOfCities = presenter.getListOfUsersWithCities(vkAdapter.getChecked(), vkAdapter.getList())
+        val arrayOfCities  = presenter.getListOfUsersWithCities(vkAdapter.getChecked(), vkAdapter.getList())
 
         val mapIntent = Intent(this@FriendListActivity, MapsActivity::class.java)
         mapIntent.putParcelableArrayListExtra("arrayOfCities", arrayOfCities)
-
-        Log.d("array of cities", arrayOfCities.toString())
 
         startActivity(mapIntent)
 
@@ -97,6 +92,7 @@ class FriendListActivity : BaseActivity(), FriendsView {
     }
 
     private fun buildRecyclerView() {
+
         vkAdapter = VkFriendListAdapter(presenter.getUserList(), openMapButton)
         recyclerView = findViewById(R.id.list_view)
         recyclerView.layoutManager = LinearLayoutManager(this@FriendListActivity)

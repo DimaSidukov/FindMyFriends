@@ -7,5 +7,5 @@ interface LocalSource {
     suspend fun loadDataToDataBase(user: UserInfo)
     suspend fun loadAllDataToDataBase(users: List<UserInfo>)
     suspend fun retrieveDataFromDataBase() : List<UserInfo>
-    fun destroyDataBase()
+    suspend fun clearDataBase()
 }

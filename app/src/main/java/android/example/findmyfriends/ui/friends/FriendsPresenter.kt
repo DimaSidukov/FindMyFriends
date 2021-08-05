@@ -7,10 +7,8 @@ import android.example.findmyfriends.data.source.local.model.UserInfo
 import android.example.findmyfriends.data.source.remote.model.geo.UserLocationData
 import android.example.findmyfriends.ui.common.BasePresenter
 import android.util.SparseBooleanArray
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
+import okhttp3.internal.wait
 import javax.inject.Inject
 
 class FriendsPresenter @Inject constructor(private val token: String) : BasePresenter<FriendsView>() {
@@ -34,13 +32,20 @@ class FriendsPresenter @Inject constructor(private val token: String) : BasePres
         viewState.setItemsFlagState()
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+
+        repositoryImpl.clearData()
+    }
+
     fun getUserList(): List<UserInfo> {
 
         val userList = repositoryImpl.downloadData(token)
 
-        GlobalScope.launch(Dispatchers.Main) {
+        CoroutineScope(Dispatchers.Default).launch {
             repositoryImpl.loadAllDataToDataBase(userList)
         }
+
         return userList
     }
 
@@ -73,9 +78,11 @@ class FriendsPresenter @Inject constructor(private val token: String) : BasePres
         if (listOfChecked.isNotEmpty()) {
             val checkedUsers = mutableListOf<UserInfo>()
             for (i in 0 until listOfChecked.size) checkedUsers.add(inputList[listOfChecked[i]])
-
-            finalList = getCoordinatesByLocation(checkedUsers) as ArrayList<UserLocationData>
+            CoroutineScope(Dispatchers.IO).launch {
+                finalList = repositoryImpl.loadMapData(checkedUsers) as ArrayList<UserLocationData>
+            }
         }
+
         return finalList
     }
 
@@ -94,12 +101,6 @@ class FriendsPresenter @Inject constructor(private val token: String) : BasePres
 
         return listOfChecked
     }
-
-    private fun getCoordinatesByLocation(users: List<UserInfo>) : MutableList<UserLocationData> {
-        var list : MutableList<UserLocationData>
-        runBlocking {
-            list = repositoryImpl.loadMapData(users)
-        }
-        return list
-    }
 }
+
+

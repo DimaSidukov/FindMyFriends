@@ -1,7 +1,6 @@
 package android.example.findmyfriends.ui.map
 
 import android.example.findmyfriends.R
-import android.example.findmyfriends.data.source.remote.model.geo.UserLocationData
 import android.example.findmyfriends.databinding.ActivityMapsBinding
 import android.example.findmyfriends.ui.common.BaseActivity
 import android.os.Bundle

@@ -11,7 +11,6 @@ Mark your VK friends' cities location on map
 
 Что осталось сделать:
 * Использовать какую-то фичу из OmegaBase или создать свой coroutineScope, чтобы не пришлось прибегать к использованию GlobalScope.launch
-* Абстрагировать удаление базы данных, чтобы о ней не знал ни презентер ни вью
 
 [Репозиторий](https://github.com/KostiaLeo/moxy-dagger2-rxjava) с MVP, на который следует опираться
 
