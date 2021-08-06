@@ -1,6 +1,5 @@
 package android.example.findmyfriends.ui.common
 
-import com.omega_r.base.mvp.views.OmegaView
 import com.omegar.mvp.MvpView
 import com.omegar.mvp.viewstate.strategy.StateStrategyType
 import com.omegar.mvp.viewstate.strategy.StrategyType

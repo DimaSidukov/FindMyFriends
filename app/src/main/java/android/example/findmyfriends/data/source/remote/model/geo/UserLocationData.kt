@@ -3,6 +3,7 @@ package android.example.findmyfriends.data.source.remote.model.geo
 import android.os.Parcel
 import android.os.Parcelable
 
+@Parcelize
 data class UserLocationData(
     val latitude: Double,
     val longitude: Double,

@@ -7,11 +7,12 @@ import android.example.findmyfriends.data.source.local.model.UserInfo
 import android.example.findmyfriends.data.source.remote.model.geo.UserLocationData
 import android.example.findmyfriends.ui.common.BasePresenter
 import android.util.SparseBooleanArray
-import kotlinx.coroutines.*
-import okhttp3.internal.wait
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class FriendsPresenter @Inject constructor(private val token: String) : BasePresenter<FriendsView>() {
+class FriendsPresenter(private val token: String) : BasePresenter<FriendsView>() {
 
     init {
         FindMyFriendsApplication.appComponent.inject(this)
@@ -20,8 +21,8 @@ class FriendsPresenter @Inject constructor(private val token: String) : BasePres
     @Inject
     lateinit var repositoryImpl: RepositoryImpl
 
-    var editTextText = ""
-    var adapterSelectedItemsState = false
+    private var editTextText = ""
+    private var adapterSelectedItemsState = false
     lateinit var allCheckBoxesArray: SparseBooleanArray
 
     override fun onFirstViewAttach() {
@@ -70,17 +71,16 @@ class FriendsPresenter @Inject constructor(private val token: String) : BasePres
     fun getListOfUsersWithCities(
         list: SparseBooleanArray,
         inputList: List<UserInfo>
-    ): ArrayList<UserLocationData> {
+    ): List<UserLocationData> {
 
-        var finalList = arrayListOf<UserLocationData>()
+        var finalList = mutableListOf<UserLocationData>()
 
         val listOfChecked = getExclusiveIndices(list, inputList)
         if (listOfChecked.isNotEmpty()) {
             val checkedUsers = mutableListOf<UserInfo>()
             for (i in 0 until listOfChecked.size) checkedUsers.add(inputList[listOfChecked[i]])
-            CoroutineScope(Dispatchers.IO).launch {
-                finalList = repositoryImpl.loadMapData(checkedUsers) as ArrayList<UserLocationData>
-            }
+
+            finalList = repositoryImpl.loadMapData(checkedUsers)
         }
 
         return finalList
@@ -93,10 +93,7 @@ class FriendsPresenter @Inject constructor(private val token: String) : BasePres
 
         val listOfChecked = mutableListOf<Int>()
         for (i in initialList.indices) {
-            try {
-                if (list.valueAt(i)) listOfChecked.add(list.keyAt(i))
-            } catch (e: ArrayIndexOutOfBoundsException) {
-            }
+            if (list.get(i)) listOfChecked.add(list.keyAt(i))
         }
 
         return listOfChecked

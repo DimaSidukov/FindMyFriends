@@ -13,7 +13,7 @@ class RepositoryImpl @Inject constructor(private val localSource: LocalSourceImp
 
     override suspend fun loadAllDataToDataBase(users: List<UserInfo>) = localSource.loadAllDataToDataBase(users)
 
-    override suspend fun loadMapData(users: List<UserInfo>) = remoteSource.loadMapData(localSource.retrieveDataFromDataBase())
+    override fun loadMapData(users: List<UserInfo>) = remoteSource.loadMapData(users)
 
     override fun downloadData(token: String): List<UserInfo> {
         return remoteSource.getResponse(token)

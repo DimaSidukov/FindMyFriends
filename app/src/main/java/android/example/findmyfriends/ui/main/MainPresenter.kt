@@ -6,7 +6,7 @@ import android.example.findmyfriends.ui.common.BasePresenter
 import com.vk.api.sdk.auth.VKAccessToken
 import com.vk.api.sdk.auth.VKAuthCallback
 
-class MainPresenter : BasePresenter<MainView>() {
+class MainPresenter(private val vkToken:String) : BasePresenter<MainView>() {
 
     init {
         FindMyFriendsApplication.appComponent.inject(this)

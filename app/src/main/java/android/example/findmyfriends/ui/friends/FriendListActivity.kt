@@ -16,8 +16,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.omega_r.click.setClickListener
+import com.omega_r.libs.extensions.list.toArrayList
 import com.omegar.mvp.presenter.InjectPresenter
 import com.omegar.mvp.presenter.ProvidePresenter
+import kotlinx.coroutines.*
 import java.util.*
 
 class FriendListActivity : BaseActivity(), FriendsView {
@@ -34,7 +36,6 @@ class FriendListActivity : BaseActivity(), FriendsView {
     private lateinit var editText : EditText
     private lateinit var selectAllButton : Button
     private lateinit var openMapButton : FloatingActionButton
-    private lateinit var progressBar: ProgressBar
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -58,20 +59,14 @@ class FriendListActivity : BaseActivity(), FriendsView {
         }
     }
 
-    override fun startMapActivity() {
+    override fun startMapActivity(arrayOfCities: List<>) {
 
-        progressBar.visibility = View.VISIBLE
-        window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
-
-        val arrayOfCities  = presenter.getListOfUsersWithCities(vkAdapter.getChecked(), vkAdapter.getList())
+        val arrayOfCities  = presenter.getListOfUsersWithCities(vkAdapter.getChecked(), vkAdapter.getList()).toArrayList()
 
         val mapIntent = Intent(this@FriendListActivity, MapsActivity::class.java)
         mapIntent.putParcelableArrayListExtra("arrayOfCities", arrayOfCities)
 
         startActivity(mapIntent)
-
-        window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
-        progressBar.visibility = View.INVISIBLE
     }
 
     override fun setItemsFlagState() {
@@ -88,11 +83,9 @@ class FriendListActivity : BaseActivity(), FriendsView {
         editText = findViewById(R.id.enter_user)
         selectAllButton = findViewById(R.id.pick_all)
         openMapButton = findViewById(R.id.open_map_button)
-        progressBar = findViewById(R.id.progress_bar)
     }
 
     private fun buildRecyclerView() {
-
         vkAdapter = VkFriendListAdapter(presenter.getUserList(), openMapButton)
         recyclerView = findViewById(R.id.list_view)
         recyclerView.layoutManager = LinearLayoutManager(this@FriendListActivity)
@@ -116,7 +109,7 @@ class FriendListActivity : BaseActivity(), FriendsView {
     }
 
     private fun setItemsStateBeforeDestruction() {
-        vkAdapter.setItemState( presenter.adapterSelectedItemsState)
+        vkAdapter.setItemState(presenter.adapterSelectedItemsState)
     }
 
     override fun onSupportNavigateUp(): Boolean {

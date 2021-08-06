@@ -1,14 +1,9 @@
 package android.example.findmyfriends.di.components
 
 import android.example.findmyfriends.di.modules.*
-import android.example.findmyfriends.ui.common.BasePresenter
-import android.example.findmyfriends.ui.common.BaseView
-import android.example.findmyfriends.ui.friends.FriendListActivity
 import android.example.findmyfriends.ui.friends.FriendsPresenter
-import android.example.findmyfriends.ui.main.MainActivity
 import android.example.findmyfriends.ui.main.MainPresenter
 import android.example.findmyfriends.ui.map.MapPresenter
-import android.example.findmyfriends.ui.map.MapsActivity
 import dagger.Component
 import javax.inject.Singleton
 

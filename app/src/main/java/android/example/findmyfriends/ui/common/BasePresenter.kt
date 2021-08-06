@@ -1,6 +1,5 @@
 package android.example.findmyfriends.ui.common
 
-import android.example.findmyfriends.FindMyFriendsApplication
 import android.example.findmyfriends.data.source.remote.api.NetworkAvailability
 import com.omegar.mvp.MvpPresenter
 import javax.inject.Inject

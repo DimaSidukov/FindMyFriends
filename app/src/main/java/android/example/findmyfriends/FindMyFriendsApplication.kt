@@ -1,6 +1,5 @@
 package android.example.findmyfriends
 
-import android.app.Activity
 import android.app.Application
 import android.example.findmyfriends.di.components.AppComponent
 import android.example.findmyfriends.di.components.DaggerAppComponent
@@ -13,9 +12,9 @@ import javax.inject.Inject
 open class FindMyFriendsApplication : Application(), HasAndroidInjector {
 
     @Inject
-    lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Activity>
+    lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Any>
 
-    override fun androidInjector(): AndroidInjector<Any>? = dispatchingAndroidInjector as AndroidInjector<Any>
+    override fun androidInjector(): AndroidInjector<Any>? = dispatchingAndroidInjector
 
     companion object {
         lateinit var appComponent: AppComponent
@@ -28,7 +27,6 @@ open class FindMyFriendsApplication : Application(), HasAndroidInjector {
             .databaseModule(DatabaseModule(applicationContext))
             .geocoderModule(GeocoderModule(applicationContext))
             .repositoryModule(RepositoryModule())
-            .presenterModule(PresenterModule(applicationContext))
             .build()
 
         super.onCreate()
