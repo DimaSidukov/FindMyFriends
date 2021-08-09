@@ -23,10 +23,10 @@ class MainActivity : BaseActivity(), MainView {
     @InjectPresenter
     lateinit var presenter: MainPresenter
 
-    @ProvidePresenter
-    fun providePresenter() = MainPresenter()
-
     var vkToken = "token"
+
+    @ProvidePresenter
+    fun providePresenter() = MainPresenter(vkToken)
 
     private lateinit var loginButton : Button
     private lateinit var infoButton : ImageButton
@@ -41,7 +41,7 @@ class MainActivity : BaseActivity(), MainView {
         initializeElements()
 
         loginButton.setOnClickListener {
-            presenter.login(vkToken)
+            presenter.login()
         }
 
         infoButton.setOnClickListener {
@@ -69,18 +69,14 @@ class MainActivity : BaseActivity(), MainView {
         }
     }
 
-    override fun startFriendsActivity() {
+    override fun startFriendsActivity(token: String) {
         val friendListIntent = Intent(this, FriendListActivity::class.java)
-        friendListIntent.putExtra("vkToken", vkToken)
+        friendListIntent.putExtra("vkToken", token)
         startActivity(friendListIntent)
     }
 
     override fun logInVk() {
         VK.login(this@MainActivity, listOf(VKScope.FRIENDS))
-    }
-
-    override fun setToken(input: String) {
-        vkToken = input
     }
 
     private fun initializeElements() {

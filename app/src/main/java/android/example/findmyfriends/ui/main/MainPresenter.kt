@@ -6,24 +6,32 @@ import android.example.findmyfriends.ui.common.BasePresenter
 import com.vk.api.sdk.auth.VKAccessToken
 import com.vk.api.sdk.auth.VKAuthCallback
 
-class MainPresenter(private val vkToken:String) : BasePresenter<MainView>() {
+class MainPresenter(private var vkToken: String) : BasePresenter<MainView>() {
 
     init {
         FindMyFriendsApplication.appComponent.inject(this)
     }
 
-    fun login(token: String) {
+    private var currentToken = vkToken
+
+    override fun onFirstViewAttach() {
+        super.onFirstViewAttach()
+
+        vkToken = currentToken
+    }
+
+    fun login() {
 
         if(isNetworkAvailable()) {
-            if(verifyVkToken(token)) {
-                viewState.startFriendsActivity()
+            if(verifyVkToken()) {
+                viewState.startFriendsActivity(vkToken)
             } else {
                 viewState.logInVk()
             }
         }
         else {
-            if(verifyVkToken(token)) {
-                viewState.startFriendsActivity()
+            if(verifyVkToken()) {
+                viewState.startFriendsActivity(vkToken)
             } else viewState.makeToast(R.string.check_internet_connection)
         }
     }
@@ -32,8 +40,9 @@ class MainPresenter(private val vkToken:String) : BasePresenter<MainView>() {
 
         return object : VKAuthCallback {
             override fun onLogin(token: VKAccessToken) {
-                viewState.setToken(token.accessToken)
-                viewState.startFriendsActivity()
+                vkToken = token.accessToken
+                //viewState.setToken(token.accessToken)
+                viewState.startFriendsActivity(vkToken)
             }
 
             override fun onLoginFailed(errorCode: Int) {
@@ -42,5 +51,5 @@ class MainPresenter(private val vkToken:String) : BasePresenter<MainView>() {
         }
     }
 
-    private fun verifyVkToken(token: String) : Boolean = token != "token"
+    private fun verifyVkToken() : Boolean = vkToken != "token"
 }

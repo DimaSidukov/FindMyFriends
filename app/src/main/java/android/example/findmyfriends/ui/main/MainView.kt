@@ -7,10 +7,7 @@ import com.omegar.mvp.viewstate.strategy.StrategyType
 interface MainView : BaseView {
 
     @StateStrategyType(StrategyType.ADD_TO_END_SINGLE)
-    fun setToken(input: String)
-
-    @StateStrategyType(StrategyType.ADD_TO_END_SINGLE)
-    fun startFriendsActivity()
+    fun startFriendsActivity(token: String)
 
     @StateStrategyType(StrategyType.ADD_TO_END_SINGLE)
     fun logInVk()

@@ -21,8 +21,8 @@ class FriendsPresenter(private val token: String) : BasePresenter<FriendsView>()
     @Inject
     lateinit var repositoryImpl: RepositoryImpl
 
-    private var editTextText = ""
-    private var adapterSelectedItemsState = false
+    var editTextText = ""
+    var adapterSelectedItemsState = false
     lateinit var allCheckBoxesArray: SparseBooleanArray
 
     override fun onFirstViewAttach() {
@@ -60,44 +60,25 @@ class FriendsPresenter(private val token: String) : BasePresenter<FriendsView>()
         return updated
     }
 
-    fun openMapHandler() {
+    fun openMapHandler(list: SparseBooleanArray, inputList: List<UserInfo>) {
         if (isNetworkAvailable()) {
-            viewState.startMapActivity()
+            viewState.startMapActivity(getListOfUsersWithCities(list, inputList))
         } else {
             viewState.makeToast(R.string.check_internet_connection)
         }
     }
 
-    fun getListOfUsersWithCities(
+    private fun getListOfUsersWithCities(
         list: SparseBooleanArray,
         inputList: List<UserInfo>
     ): List<UserLocationData> {
 
-        var finalList = mutableListOf<UserLocationData>()
+        val innerList = mutableListOf<UserInfo>()
 
-        val listOfChecked = getExclusiveIndices(list, inputList)
-        if (listOfChecked.isNotEmpty()) {
-            val checkedUsers = mutableListOf<UserInfo>()
-            for (i in 0 until listOfChecked.size) checkedUsers.add(inputList[listOfChecked[i]])
-
-            finalList = repositoryImpl.loadMapData(checkedUsers)
+        for(index in 0 until list.size()) {
+            innerList.add(inputList[list.keyAt(index)])
         }
 
-        return finalList
-    }
-
-    private fun getExclusiveIndices(
-        list: SparseBooleanArray,
-        initialList: List<UserInfo>
-    ): MutableList<Int> {
-
-        val listOfChecked = mutableListOf<Int>()
-        for (i in initialList.indices) {
-            if (list.get(i)) listOfChecked.add(list.keyAt(i))
-        }
-
-        return listOfChecked
+        return repositoryImpl.loadMapData(innerList)
     }
 }
-
-

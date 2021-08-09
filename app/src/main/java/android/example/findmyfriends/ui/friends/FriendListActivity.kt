@@ -2,15 +2,13 @@ package android.example.findmyfriends.ui.friends
 
 import android.content.Intent
 import android.example.findmyfriends.R
+import android.example.findmyfriends.data.source.remote.model.geo.UserLocationData
 import android.example.findmyfriends.ui.common.BaseActivity
 import android.example.findmyfriends.ui.friends.adapter.VkFriendListAdapter
 import android.example.findmyfriends.ui.map.MapsActivity
 import android.os.Bundle
-import android.view.View
-import android.view.WindowManager
 import android.widget.Button
 import android.widget.EditText
-import android.widget.ProgressBar
 import androidx.core.widget.doAfterTextChanged
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -55,16 +53,14 @@ class FriendListActivity : BaseActivity(), FriendsView {
         }
 
         openMapButton.setClickListener {
-            presenter.openMapHandler()
+            presenter.openMapHandler(vkAdapter.getChecked(), vkAdapter.getList())
         }
     }
 
-    override fun startMapActivity(arrayOfCities: List<>) {
-
-        val arrayOfCities  = presenter.getListOfUsersWithCities(vkAdapter.getChecked(), vkAdapter.getList()).toArrayList()
+    override fun startMapActivity(users: List<UserLocationData>) {
 
         val mapIntent = Intent(this@FriendListActivity, MapsActivity::class.java)
-        mapIntent.putParcelableArrayListExtra("arrayOfCities", arrayOfCities)
+        mapIntent.putParcelableArrayListExtra("arrayOfCities", users.toArrayList())
 
         startActivity(mapIntent)
     }

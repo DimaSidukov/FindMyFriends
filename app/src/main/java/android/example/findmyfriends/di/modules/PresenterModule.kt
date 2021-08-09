@@ -14,7 +14,7 @@ class PresenterModule(val context: Context) {
 
     @Provides
     @Singleton
-    fun provideMainPresenter(): MainPresenter = MainPresenter()
+    fun provideMainPresenter(token: String): MainPresenter = MainPresenter(token)
 
     @Provides
     @Singleton
