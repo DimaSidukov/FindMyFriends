@@ -41,7 +41,6 @@ class MainPresenter(private var vkToken: String) : BasePresenter<MainView>() {
         return object : VKAuthCallback {
             override fun onLogin(token: VKAccessToken) {
                 vkToken = token.accessToken
-                //viewState.setToken(token.accessToken)
                 viewState.startFriendsActivity(vkToken)
             }
 

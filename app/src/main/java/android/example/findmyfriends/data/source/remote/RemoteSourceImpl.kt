@@ -70,7 +70,6 @@ class RemoteSourceImpl @Inject constructor(private val retrofit: Retrofit, priva
                 repetitiveCities.add(user.city)
             }
         }
-
         return listOfLocations
     }
 }
